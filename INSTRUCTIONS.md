@@ -1,11 +1,31 @@
 # Planar Monocular SLAM
 
-## Goal
+## Problem Definition
 
-- Get an estimate of points in the world from images correspondences (use the points id for data association) using the noisy odometry, you can achieve this in two ways:
+### Context
+
+Differential Drive equipped with a monocular camera
+
+### Input
+
+- Integrated dead reckoning (wheeled odometry)
+- Stream of point projections with "id"
+- Camera parameters
+  - Extrinsics (pose of camera on robot)
+  - Intrinsics (K)
+
+### Output
+
+- Trajectory (estimate vs gt)
+- 3D points (estimate vs gt)
+- Error values (rotation and translation)
+
+## Solution Sketch
+
+- Get an estimate of points in the world from images correspondences (use the points id for data association) using the noisy odometry. You can achieve this in two ways:
   1. Use always pair of images where correspondence appear, find correspondences, triangulate (you will have duplication of 3D points due to noise in image features, if this is the case merge same 3D points in position)
   2. use all the correspondences from all the images, to find the set of world points that minimizes the distance among all features directions
-- once you have an initial estimate of 3D points, SE(2) poses (your odometry), you can perform Bundle Adjustment, see Total Least Squares but remember that your motion is planar
+- Once you have an initial estimate of 3D points, SE(2) poses (your odometry), you can perform Bundle Adjustment, see Total Least Squares but remember that your motion is planar
 
 ## Evaluation
 
