@@ -16,4 +16,4 @@ def project_root() -> str:
     )
 
 def src_dir() -> str:
-    return project_root() + "/rich_example"
+    return project_root() + "/pms_py"

@@ -3101,7 +3101,7 @@ packages:
   - libgcc >=14
   - python_abi 3.12.* *_cp312
   input:
-    hash: 63fe6288bca5a11a15e7e6792f665846c298f820b74b6e59208cad7a69ba003d
+    hash: c8e6587c64973547c4d2ade6c61a54ae9c5193219ca0d0c4d56325bd92153c5f
     globs:
     - pixi.toml
 - conda: pms
@@ -3113,7 +3113,7 @@ packages:
   - libcxx >=20
   - python_abi 3.12.* *_cp312
   input:
-    hash: 63fe6288bca5a11a15e7e6792f665846c298f820b74b6e59208cad7a69ba003d
+    hash: c8e6587c64973547c4d2ade6c61a54ae9c5193219ca0d0c4d56325bd92153c5f
     globs:
     - pixi.toml
 - conda: pms
@@ -3125,7 +3125,7 @@ packages:
   - libcxx >=20
   - python_abi 3.12.* *_cp312
   input:
-    hash: 63fe6288bca5a11a15e7e6792f665846c298f820b74b6e59208cad7a69ba003d
+    hash: c8e6587c64973547c4d2ade6c61a54ae9c5193219ca0d0c4d56325bd92153c5f
     globs:
     - pixi.toml
 - conda: pms
@@ -3138,7 +3138,19 @@ packages:
   - vc14_runtime >=14.16.27033
   - python_abi 3.12.* *_cp312
   input:
-    hash: 63fe6288bca5a11a15e7e6792f665846c298f820b74b6e59208cad7a69ba003d
+    hash: c8e6587c64973547c4d2ade6c61a54ae9c5193219ca0d0c4d56325bd92153c5f
+    globs:
+    - pixi.toml
+- conda: .
+  name: pms_py
+  version: 0.1.0
+  build: pyhbf21a9e_0
+  subdir: noarch
+  depends:
+  - rich 13.9.*
+  - python
+  input:
+    hash: 3db96f2e651da06c95b101421ebe4e2c87e18dd4d2d0884355975f452d339622
     globs:
     - pixi.toml
 - conda: https://prefix.dev/conda-forge/linux-64/pthread-stubs-0.4-hb9d3cd8_1002.conda
@@ -3543,18 +3555,6 @@ packages:
   license_family: MIT
   size: 185646
   timestamp: 1733342347277
-- conda: .
-  name: rich_example
-  version: 0.1.0
-  build: pyhbf21a9e_0
-  subdir: noarch
-  depends:
-  - rich 13.9.*
-  - python
-  input:
-    hash: 7848e05c081d7ee8cc4d9963998dd28bf260256fa7142dd2284fc1e552142b94
-    globs:
-    - pixi.toml
 - conda: https://prefix.dev/conda-forge/noarch/six-1.17.0-pyhd8ed1ab_0.conda
   sha256: 41db0180680cc67c3fa76544ffd48d6a5679d96f4b71d7498a759e94edc9a2db
   md5: a451d576819089b0d672f18768be0f65

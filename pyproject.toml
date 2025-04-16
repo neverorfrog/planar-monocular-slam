@@ -1,8 +1,8 @@
 [project]
 dependencies = ["rich"]
-name = "rich_example"
+name = "pms_py"
 requires-python = ">= 3.11"
-scripts = { rich-example-main = "rich_example:main" }
+scripts = { rich-example-main = "pms_py:main" }
 version = "0.1.0"
 
 [build-system]
