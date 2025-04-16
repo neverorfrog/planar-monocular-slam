@@ -1,1 +1,5 @@
-build
+.pixi
+*.conda
+
+__pycache__/
+*.py[cod]

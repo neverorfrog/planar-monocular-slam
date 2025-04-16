@@ -1,7 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from utils import project_root
 
-trajectory = np.loadtxt('data/trajectory.dat')
+trajectory = np.loadtxt(f'{project_root()}/data/trajectory.dat')
 
 odom_traj = np.stack((trajectory[:,1], trajectory[:,2], trajectory[:,3]), axis = 1)
 gt_traj = np.stack((trajectory[:,4], trajectory[:,5], trajectory[:,6]), axis = 1)
