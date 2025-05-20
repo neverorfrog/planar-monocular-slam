@@ -1,3 +1,5 @@
 # TODO
 
-- [ ] Need to define single components
+- [ ] Data preprocessing
+- [ ] Triangulation for initial guess
+- [ ] Bundle Adjustment
