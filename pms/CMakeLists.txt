@@ -38,11 +38,45 @@ message(STATUS "CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
 
 # =============================================================================================
 
+# ============================ EXTERNAL LIBRARIES =============================================
+include(FetchContent)
+
+# EIGEN3
+FetchContent_Declare(
+  eigen
+  GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
+  GIT_TAG master
+)
+FetchContent_MakeAvailable(eigen)
+
+# NANOBIND
+FetchContent_Declare(
+  nanobind
+  GIT_REPOSITORY https://github.com/wjakob/nanobind.git
+  GIT_TAG v2.4.0
+)
+FetchContent_MakeAvailable(nanobind)
+
+
 # ============================ PLANAR-MONOCULAR-SLAM LIBRARY ==================================
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 file(GLOB_RECURSE PMS_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
 list(REMOVE_ITEM PMS_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/bindings.cpp)
 add_library(${PMS_CPP_LIB} STATIC ${PMS_SRCS})
+
+target_include_directories(${PMS_CPP_LIB}
+  PUBLIC
+  $<INSTALL_INTERFACE:include>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<BUILD_INTERFACE:${eigen_SOURCE_DIR}>
+)
+
+set(PMS_CPP_EXTRA_LIBRARIES
+  $<BUILD_INTERFACE:cxx_setup>
+  $<BUILD_INTERFACE:Eigen3::Eigen>
+)
+
+target_link_libraries(${PMS_CPP_LIB} PUBLIC ${PMS_CPP_EXTRA_LIBRARIES})
 # =============================================================================================
 
 find_package(Python 3.8 COMPONENTS Interpreter Development.Module REQUIRED)
@@ -61,10 +95,9 @@ execute_process(
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
-find_package(nanobind CONFIG REQUIRED)
 nanobind_add_module(${PMS_BINDING_LIB} src/bindings.cpp)
 
-find_package(nanoeigenpy CONFIG REQUIRED)
+# find_package(nanoeigenpy CONFIG REQUIRED)
 
 install(
     TARGETS ${PMS_BINDING_LIB}
@@ -73,3 +106,8 @@ install(
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${BINDIR}
 )
+
+
+# ============= EXECUTABLES ==========================================================
+add_executable(dataset ${CMAKE_CURRENT_SOURCE_DIR}/src/dataset.cpp)
+target_link_libraries(dataset PRIVATE ${PMS_CPP_LIB})

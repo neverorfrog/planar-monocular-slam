@@ -15,6 +15,8 @@ numpy = ">=2.2.4,<3"
 [tasks]
 start = "rich-example-main"
 visualize = "python pms_py/visualization.py"
+build = 'cd pms && mkdir -p build && cd build && cmake .. && cmake --build . -j$(nproc)'
+dataset_cpp = 'pms/build/dataset /home/neverorfrog/code/planar-monocular-slam/data'
 
 [package]
 name = "pms_py"
@@ -28,3 +30,7 @@ hatchling = "==1.26.3"
 
 [package.run-dependencies]
 rich = "13.9.*"
+
+[activation.env]
+LD_LIBRARY_PATH = "${CONDA_PREFIX}/lib:$LD_LIBRARY_PATH"
+PYTHONPATH = "${CONDA_PREFIX}/lib/python3.9/site-packages:$PYTHONPATH"

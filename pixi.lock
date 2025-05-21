@@ -52,15 +52,15 @@ environments:
       - conda: https://prefix.dev/conda-forge/linux-64/libegl-1.7.0-ha4b6fd6_2.conda
       - conda: https://prefix.dev/conda-forge/linux-64/libexpat-2.7.0-h5888daf_0.conda
       - conda: https://prefix.dev/conda-forge/linux-64/libffi-3.4.6-h2dba641_1.conda
-      - conda: https://prefix.dev/conda-forge/linux-64/libgcc-14.2.0-h767d61c_2.conda
-      - conda: https://prefix.dev/conda-forge/linux-64/libgcc-ng-14.2.0-h69a702a_2.conda
+      - conda: https://prefix.dev/conda-forge/linux-64/libgcc-15.1.0-h767d61c_2.conda
+      - conda: https://prefix.dev/conda-forge/linux-64/libgcc-ng-15.1.0-h69a702a_2.conda
       - conda: https://prefix.dev/conda-forge/linux-64/libgfortran-14.2.0-h69a702a_2.conda
       - conda: https://prefix.dev/conda-forge/linux-64/libgfortran5-14.2.0-hf1ad2bd_2.conda
       - conda: https://prefix.dev/conda-forge/linux-64/libgl-1.7.0-ha4b6fd6_2.conda
       - conda: https://prefix.dev/conda-forge/linux-64/libglib-2.84.1-h2ff4ddf_0.conda
       - conda: https://prefix.dev/conda-forge/linux-64/libglvnd-1.7.0-ha4b6fd6_2.conda
       - conda: https://prefix.dev/conda-forge/linux-64/libglx-1.7.0-ha4b6fd6_2.conda
-      - conda: https://prefix.dev/conda-forge/linux-64/libgomp-14.2.0-h767d61c_2.conda
+      - conda: https://prefix.dev/conda-forge/linux-64/libgomp-15.1.0-h767d61c_2.conda
       - conda: https://prefix.dev/conda-forge/linux-64/libiconv-1.18-h4ce23a2_1.conda
       - conda: https://prefix.dev/conda-forge/linux-64/libjpeg-turbo-3.0.0-hd590300_1.conda
       - conda: https://prefix.dev/conda-forge/linux-64/liblapack-3.9.0-31_h7ac8fdf_openblas.conda
@@ -74,8 +74,8 @@ environments:
       - conda: https://prefix.dev/conda-forge/linux-64/libpng-1.6.47-h943b412_0.conda
       - conda: https://prefix.dev/conda-forge/linux-64/libpq-17.4-h27ae623_1.conda
       - conda: https://prefix.dev/conda-forge/linux-64/libsqlite-3.49.1-hee588c1_2.conda
-      - conda: https://prefix.dev/conda-forge/linux-64/libstdcxx-14.2.0-h8f9b012_2.conda
-      - conda: https://prefix.dev/conda-forge/linux-64/libstdcxx-ng-14.2.0-h4852527_2.conda
+      - conda: https://prefix.dev/conda-forge/linux-64/libstdcxx-15.1.0-h8f9b012_2.conda
+      - conda: https://prefix.dev/conda-forge/linux-64/libstdcxx-ng-15.1.0-h4852527_2.conda
       - conda: https://prefix.dev/conda-forge/linux-64/libtiff-4.7.0-hd9ff511_3.conda
       - conda: https://prefix.dev/conda-forge/linux-64/libuuid-2.38.1-h0b41bf4_0.conda
       - conda: https://prefix.dev/conda-forge/linux-64/libwebp-base-1.5.0-h851e524_0.conda
@@ -1660,19 +1660,19 @@ packages:
   license_family: MIT
   size: 44978
   timestamp: 1743435053850
-- conda: https://prefix.dev/conda-forge/linux-64/libgcc-14.2.0-h767d61c_2.conda
-  sha256: 3a572d031cb86deb541d15c1875aaa097baefc0c580b54dc61f5edab99215792
-  md5: ef504d1acbd74b7cc6849ef8af47dd03
+- conda: https://prefix.dev/conda-forge/linux-64/libgcc-15.1.0-h767d61c_2.conda
+  sha256: 0024f9ab34c09629621aefd8603ef77bf9d708129b0dd79029e502c39ffc2195
+  md5: ea8ac52380885ed41c1baa8f1d6d2b93
   depends:
   - __glibc >=2.17,<3.0.a0
   - _openmp_mutex >=4.5
   constrains:
-  - libgomp 14.2.0 h767d61c_2
-  - libgcc-ng ==14.2.0=*_2
+  - libgcc-ng ==15.1.0=*_2
+  - libgomp 15.1.0 h767d61c_2
   license: GPL-3.0-only WITH GCC-exception-3.1
   license_family: GPL
-  size: 847885
-  timestamp: 1740240653082
+  size: 829108
+  timestamp: 1746642191935
 - conda: https://prefix.dev/conda-forge/win-64/libgcc-14.2.0-h1383e82_2.conda
   sha256: fddf2fc037bc95adb3b369e8866da8a71b6a67ebcfc4d7035ac4208309dc9e72
   md5: 4a74c1461a0ba47a3346c04bdccbe2ad
@@ -1687,15 +1687,15 @@ packages:
   license_family: GPL
   size: 666343
   timestamp: 1740240717807
-- conda: https://prefix.dev/conda-forge/linux-64/libgcc-ng-14.2.0-h69a702a_2.conda
-  sha256: fb7558c328b38b2f9d2e412c48da7890e7721ba018d733ebdfea57280df01904
-  md5: a2222a6ada71fb478682efe483ce0f92
+- conda: https://prefix.dev/conda-forge/linux-64/libgcc-ng-15.1.0-h69a702a_2.conda
+  sha256: 0ab5421a89f090f3aa33841036bb3af4ed85e1f91315b528a9d75fab9aad51ae
+  md5: ddca86c7040dd0e73b2b69bd7833d225
   depends:
-  - libgcc 14.2.0 h767d61c_2
+  - libgcc 15.1.0 h767d61c_2
   license: GPL-3.0-only WITH GCC-exception-3.1
   license_family: GPL
-  size: 53758
-  timestamp: 1740240660904
+  size: 34586
+  timestamp: 1746642200749
 - conda: https://prefix.dev/conda-forge/linux-64/libgfortran-14.2.0-h69a702a_2.conda
   sha256: e05263e8960da03c341650f2a3ffa4ccae4e111cb198e8933a2908125459e5a6
   md5: fb54c4ea68b460c278d26eea89cfbcc3
@@ -1819,15 +1819,15 @@ packages:
   license: LicenseRef-libglvnd
   size: 75504
   timestamp: 1731330988898
-- conda: https://prefix.dev/conda-forge/linux-64/libgomp-14.2.0-h767d61c_2.conda
-  sha256: 1a3130e0b9267e781b89399580f3163632d59fe5b0142900d63052ab1a53490e
-  md5: 06d02030237f4d5b3d9a7e7d348fe3c6
+- conda: https://prefix.dev/conda-forge/linux-64/libgomp-15.1.0-h767d61c_2.conda
+  sha256: 05fff3dc7e80579bc28de13b511baec281c4343d703c406aefd54389959154fb
+  md5: fbe7d535ff9d3a168c148e07358cd5b1
   depends:
   - __glibc >=2.17,<3.0.a0
   license: GPL-3.0-only WITH GCC-exception-3.1
   license_family: GPL
-  size: 459862
-  timestamp: 1740240588123
+  size: 452635
+  timestamp: 1746642113092
 - conda: https://prefix.dev/conda-forge/win-64/libgomp-14.2.0-h1383e82_2.conda
   sha256: 674ec5f1bf319eac98d0d6ecb9c38e0192f3cf41969a5621d62a7e695e1aa9f3
   md5: dd6b1ab49e28bcb6154cd131acec985b
@@ -2190,25 +2190,25 @@ packages:
   license: Unlicense
   size: 1081292
   timestamp: 1742083956001
-- conda: https://prefix.dev/conda-forge/linux-64/libstdcxx-14.2.0-h8f9b012_2.conda
-  sha256: 8f5bd92e4a24e1d35ba015c5252e8f818898478cb3bc50bd8b12ab54707dc4da
-  md5: a78c856b6dc6bf4ea8daeb9beaaa3fb0
+- conda: https://prefix.dev/conda-forge/linux-64/libstdcxx-15.1.0-h8f9b012_2.conda
+  sha256: 6ae3d153e78f6069d503d9309f2cac6de5b93d067fc6433160a4c05226a5dad4
+  md5: 1cb1c67961f6dd257eae9e9691b341aa
   depends:
   - __glibc >=2.17,<3.0.a0
-  - libgcc 14.2.0 h767d61c_2
+  - libgcc 15.1.0 h767d61c_2
   license: GPL-3.0-only WITH GCC-exception-3.1
   license_family: GPL
-  size: 3884556
-  timestamp: 1740240685253
-- conda: https://prefix.dev/conda-forge/linux-64/libstdcxx-ng-14.2.0-h4852527_2.conda
-  sha256: e86f38b007cf97cc2c67cd519f2de12a313c4ee3f5ef11652ad08932a5e34189
-  md5: c75da67f045c2627f59e6fcb5f4e3a9b
+  size: 3902355
+  timestamp: 1746642227493
+- conda: https://prefix.dev/conda-forge/linux-64/libstdcxx-ng-15.1.0-h4852527_2.conda
+  sha256: 11bea86e11de7d6bce87589197a383344df3fa0a3552dab7e931785ff1159a5b
+  md5: 9d2072af184b5caa29492bf2344597bb
   depends:
-  - libstdcxx 14.2.0 h8f9b012_2
+  - libstdcxx 15.1.0 h8f9b012_2
   license: GPL-3.0-only WITH GCC-exception-3.1
   license_family: GPL
-  size: 53830
-  timestamp: 1740240722530
+  size: 34647
+  timestamp: 1746642266826
 - conda: https://prefix.dev/conda-forge/linux-64/libtiff-4.7.0-hd9ff511_3.conda
   sha256: b224e16b88d76ea95e4af56e2bc638c603bd26a770b98d117d04541d3aafa002
   md5: 0ea6510969e1296cc19966fad481f6de
@@ -3097,8 +3097,8 @@ packages:
   build: hbf21a9e_0
   subdir: linux-64
   depends:
-  - libstdcxx >=14
-  - libgcc >=14
+  - libstdcxx >=15
+  - libgcc >=15
   - python_abi 3.12.* *_cp312
   input:
     hash: c8e6587c64973547c4d2ade6c61a54ae9c5193219ca0d0c4d56325bd92153c5f
@@ -3150,7 +3150,7 @@ packages:
   - rich 13.9.*
   - python
   input:
-    hash: 3db96f2e651da06c95b101421ebe4e2c87e18dd4d2d0884355975f452d339622
+    hash: a2addd40a003fc5302efd303622934b781dffcc7900e6d67e8054f84b11f474d
     globs:
     - pixi.toml
 - conda: https://prefix.dev/conda-forge/linux-64/pthread-stubs-0.4-hb9d3cd8_1002.conda

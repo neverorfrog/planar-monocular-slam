@@ -1,10 +1,11 @@
 from dataclasses import dataclass
 import numpy as np
 
+
 @dataclass
 class Pose2D:
     """A 2D pose in the world"""
-    
+
     def __init__(self, *args, **kwargs) -> None:
         if len(args) == 2:
             self.position, self.orientation = args
@@ -16,18 +17,18 @@ class Pose2D:
             raise ValueError("Invalid arguments")
         if self.position.shape != (2,):
             raise ValueError(f"Position must be a 2D vector, got {self.position.shape}")
-    
+
     position: np.ndarray
     """The position of the pose in the world"""
-    
+
     orientation: float
     """The orientation of the pose in the world"""
-    
-        
+
+
 @dataclass
 class Pose3D:
     """A 3D pose in the world"""
-    
+
     def __init__(self, *args, **kwargs) -> None:
         if len(args) == 2:
             self.position, self.orientation = args
@@ -40,11 +41,12 @@ class Pose3D:
         if self.position.shape != (3,):
             raise ValueError(f"Position must be a 3D vector, got {self.position.shape}")
         if self.orientation.shape != (3, 3):
-            raise ValueError(f"Orientation must be a 3D rotation matrix, got {self.orientation.shape}")
-     
+            raise ValueError(
+                f"Orientation must be a 3D rotation matrix, got {self.orientation.shape}"
+            )
+
     position: np.ndarray
     """The position of the pose in the world"""
-    
+
     orientation: np.ndarray
     """The orientation of the pose in the world"""
-    

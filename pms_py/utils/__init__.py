@@ -1,5 +1,6 @@
 import os
 
+
 def project_root() -> str:
     current_dir = os.path.dirname(os.path.abspath(__file__))
     max_iterations = 100  # Set a limit for the number of iterations
@@ -14,6 +15,7 @@ def project_root() -> str:
     raise FileNotFoundError(
         "requirements.txt not found in any parent directories within the iteration limit"
     )
+
 
 def src_dir() -> str:
     return project_root() + "/pms_py"
