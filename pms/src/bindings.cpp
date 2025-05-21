@@ -1,67 +1,107 @@
-// #include <nanobind/nanobind.h>
+#include <nanobind/eigen/dense.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/operators.h>
+#include <nanobind/stl/string.h>
+#include <nanobind/stl/vector.h>
 
-// #include <nanobind/eigen/dense.h>
-// #include <nanobind/nanobind.h>
-// #include <nanobind/stl/string.h>
-// #include <nanobind/stl/vector.h>
-// #include <nanobind/operators.h>
+#include "pms/dataset.h"
+#include "pms/math/definitions.h"
+#include "pms/math/pose2.h"
+#include "pms/math/pose3.h"
+#include "pms/math/rotation_matrix.h"
 
-// #include "ismpc_cpp/ismpc.h"
-// #include "ismpc_cpp/tools/math/rotation_matrix.h"
-// #include "ismpc_cpp/types/footstep.h"
-// #include "ismpc_cpp/types/lip_state.h"
-// #include "ismpc_cpp/types/support_phase.h"
+namespace nb = nanobind;
+using EigenMatrix = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>;
+NB_MAKE_OPAQUE(pms::RotationMatrix);  // Needed for RotationMatrix bindings
 
-// namespace nb = nanobind;
-// using EigenMatrix = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>;
-// NB_MAKE_OPAQUE(ismpc::RotationMatrix); // Needed for RotationMatrix bindings
+namespace pms {
+namespace python {
 
-// namespace pms {
-// namespace python {
+NB_MODULE(pms, m) {
+    m.doc() = "Python bindings for the Planar-Monocular-Slam C++ library";
 
-// NB_MODULE(ismpc, m) {
-//     m.doc() = "Python bindings for the Planar-Monocular-Slam C++ library";
+    nb::class_<Pose2>(m, "Pose2")
+        .def(nb::init<>())
+        .def(nb::init<const Vector2 &>())
+        .def(nb::init<const Angle &, const Vector2 &>())
+        .def(nb::init<const Angle &, const Scalar, const Scalar &>())
+        .def(nb::init<const Pose2 &>())
+        .def(
+            "__copy__", [](const Pose2 &self) { return new Pose2(self); }, nb::rv_policy::take_ownership)
+        .def("rotation", [](const Pose2 &pose) { return static_cast<double>(pose.rotation); })
+        .def_ro("translation", &Pose2::translation)
+        .def("__str__", &Pose2::toString);
 
-//     nb::enum_<TailType>(m, "TailType")
-//         .value("PERIODIC", TailType::PERIODIC)
-//         .value("TRUNCATED", TailType::TRUNCATED)
-//         .value("ANTICIPATIVE", TailType::ANTICIPATIVE)
-//         .export_values();
+    nb::class_<Pose3>(m, "Pose3")
+        .def(nb::init<>())
+        .def(nb::init<const RotationMatrix &, const Vector3 &>())
+        .def(
+            "__copy__", [](const Pose3 &self) { return new Pose3(self); }, nb::rv_policy::take_ownership)
+        .def("getVector", &Pose3::getVector)
+        .def("__add__", [](const Pose3 &p1, const Pose3 &p2) { return p1 + p2; })
+        .def("__str__", &Pose3::toString)
+        .def_rw("rotation", &Pose3::rotation)
+        .def_rw("translation", &Pose3::translation);
 
-//     nb::class_<State>(m, "State")
-//         // Constructor takes Params
-//         .def(nb::init<const Params &>())
-//         .def(nb::init<const State &>())
-//         .def("__copy__", [](const State &self) {
-//             return new State(self);
-//         }, nb::rv_policy::take_ownership)
-//         .def_rw("lip", &State::lip)
-//         .def_rw("left_foot", &State::left_foot)
-//         .def_rw("right_foot", &State::right_foot)
-//         .def_rw("torso", &State::torso)
-//         .def_rw("base", &State::base)
-//         .def_rw("desired_lip", &State::desired_lip)
-//         .def_rw("desired_left_foot", &State::desired_left_foot)
-//         .def_rw("desired_right_foot", &State::desired_right_foot)
-//         .def_rw("desired_torso", &State::desired_torso)
-//         .def_rw("desired_base", &State::desired_base)
-//         .def_ro("left_foot_x", &State::left_foot_x)
-//         .def_ro("left_foot_y", &State::left_foot_y)
-//         .def_ro("right_foot_x", &State::right_foot_x)
-//         .def_ro("right_foot_y", &State::right_foot_y)
-//         .def_rw("total_mpc_qp_duration", &State::total_mpc_qp_duration) // Made rw for potential reset
-//         .def_rw("total_mpc_preprocessing_duration", &State::total_mpc_preprocessing_duration) // Made rw
-//         .def_rw("total_mpc_postprocessing_duration", &State::total_mpc_postprocessing_duration) // Made rw
-//         .def_rw("lip_history", &State::lip_history) // Made rw for potential clearing/access
-//         .def_rw("left_foot_history", &State::left_foot_history) // Made rw
-//         .def_rw("right_foot_history", &State::right_foot_history) // Made rw
-//         .def("__str__", &State::toString);
+    nb::class_<Camera>(m, "Camera")
+        .def(nb::init<>())
+        .def(nb::init<const Camera &>())
+        .def(
+            "__copy__", [](const Camera &self) { return new Camera(self); }, nb::rv_policy::take_ownership)
+        .def_rw("camera_matrix", &Camera::camera_matrix)
+        .def_rw("pose", &Camera::pose)
+        .def_rw("z_near", &Camera::z_near)
+        .def_rw("z_far", &Camera::z_far)
+        .def_rw("width", &Camera::width)
+        .def_rw("height", &Camera::height)
+        .def("__str__", &Camera::toString);
 
-//     nb::class_<KalmanFilter>(m, "KalmanFilter")
-//         // Constructor takes Params
-//         .def(nb::init<const Params &>())
-//         .def("update", &KalmanFilter::update);
-// };
+    nb::class_<Landmark>(m, "Landmark")
+        .def(nb::init<>())
+        .def(nb::init<const Vector3 &, const int>())
+        .def(nb::init<const Landmark &>())
+        .def(
+            "__copy__", [](const Landmark &self) { return new Landmark(self); },
+            nb::rv_policy::take_ownership)
+        .def_ro("position", &Landmark::position)
+        .def_ro("id", &Landmark::id)
+        .def("__str__", &Landmark::toString);
 
-// } // namespace python
-// } // namespace pms
+    nb::class_<Measurement>(m, "Measurement")
+        .def(nb::init<>())
+        .def(nb::init<const int, const int, const int, const Vector2 &>())
+        .def(nb::init<const Measurement &>())
+        .def(
+            "__copy__", [](const Measurement &self) { return new Measurement(self); },
+            nb::rv_policy::take_ownership)
+        .def_ro("seq_number", &Measurement::seq_number)
+        .def_ro("current_id", &Measurement::current_id)
+        .def_ro("actual_id", &Measurement::actual_id)
+        .def_ro("image_point", &Measurement::image_point)
+        .def("__str__", &Measurement::toString);
+
+    nb::class_<TrajPoint>(m, "TrajPoint")
+        .def(nb::init<>())
+        .def(nb::init<const int, const Pose2 &, const Pose2 &>())
+        .def(nb::init<const TrajPoint &>())
+        .def(
+            "__copy__", [](const TrajPoint &self) { return new TrajPoint(self); },
+            nb::rv_policy::take_ownership)
+        .def_ro("id", &TrajPoint::id)
+        .def_ro("odometry", &TrajPoint::odometry)
+        .def_ro("ground_truth", &TrajPoint::ground_truth)
+        .def_ro("measurements", &TrajPoint::measurements)
+        .def("__str__", &TrajPoint::toString);
+
+    nb::class_<Dataset>(m, "Dataset")
+        .def(nb::init<const std::string &>())
+        .def(
+            "__copy__", [](const Dataset &self) { return new Dataset(self); }, nb::rv_policy::take_ownership)
+        .def_ro("camera", &Dataset::camera)
+        .def_ro("world", &Dataset::world)
+        .def_ro("trajectory", &Dataset::trajectory)
+        .def("__str__", &Dataset::toString);
+};
+
+}  // namespace python
+}  // namespace pms

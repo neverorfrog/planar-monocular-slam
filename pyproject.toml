@@ -10,3 +10,4 @@ requires = ["hatchling"]
 
 [project.scripts]
 dataset = "pms_py.utils.dataset:main"
+main = "pms_py.main:main"

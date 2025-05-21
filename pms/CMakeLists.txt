@@ -96,7 +96,8 @@ execute_process(
 )
 
 nanobind_add_module(${PMS_BINDING_LIB} src/bindings.cpp)
-
+target_include_directories(${PMS_BINDING_LIB} PUBLIC ${eigen_SOURCE_DIR} ${PMS_INCLUDE_DIR})
+target_link_libraries(${PMS_BINDING_LIB} PUBLIC ${PMS_CPP_LIB})
 # find_package(nanoeigenpy CONFIG REQUIRED)
 
 install(
@@ -106,8 +107,3 @@ install(
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${BINDIR}
 )
-
-
-# ============= EXECUTABLES ==========================================================
-add_executable(dataset ${CMAKE_CURRENT_SOURCE_DIR}/src/dataset.cpp)
-target_link_libraries(dataset PRIVATE ${PMS_CPP_LIB})

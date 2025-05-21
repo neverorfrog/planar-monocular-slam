@@ -2,9 +2,9 @@
 
 #include <string>
 
+#include "pms/math/definitions.h"
 #include "pms/math/pose2.h"
 #include "pms/math/rotation_matrix.h"
-#include "pms/math/definitions.h"
 
 namespace pms {
 

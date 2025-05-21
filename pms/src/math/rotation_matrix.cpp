@@ -1,4 +1,5 @@
 #include "pms/math/rotation_matrix.h"
+
 #include "pms/math/arithmetic.h"
 
 namespace pms {
@@ -113,8 +114,10 @@ Scalar RotationMatrix::getXAngle() const {
         return 0.0;
     else {
         Scalar x = mat(2, 2) / h;
-        if (x < -1.0) x = -1.0;
-        if (x > 1.0) x = 1.0;
+        if (x < -1.0)
+            x = -1.0;
+        if (x > 1.0)
+            x = 1.0;
         return std::acos(x) * -Arithmetic::sgnNeg(mat(1, 2));
     }
 }
@@ -126,8 +129,10 @@ Scalar RotationMatrix::getYAngle() const {
         return 0.f;
     else {
         float x = mat(0, 0) / h;
-        if (x < -1.0f) x = -1.0f;
-        if (x > 1.0f) x = 1.0f;
+        if (x < -1.0f)
+            x = -1.0f;
+        if (x > 1.0f)
+            x = 1.0f;
         return std::acos(x) * -Arithmetic::sgnNeg(mat(2, 0));
     }
 }
@@ -139,8 +144,10 @@ Scalar RotationMatrix::getZAngle() const {
         return 0.f;
     else {
         float x = mat(0, 0) / h;
-        if (x < -1.0f) x = -1.0f;
-        if (x > 1.0f) x = 1.0f;
+        if (x < -1.0f)
+            x = -1.0f;
+        if (x > 1.0f)
+            x = 1.0f;
         return std::acos(x) * Arithmetic::sgnPos(mat(1, 0));
     }
 }
