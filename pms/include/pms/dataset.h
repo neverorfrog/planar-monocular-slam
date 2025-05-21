@@ -59,7 +59,7 @@ struct Landmark {
     Vector3 position;
     int id;
 
-    Landmark() : id(0) {}
+    Landmark(int landmark_id) : position(Vector3::Zero()), id(landmark_id) {}
     Landmark(const Vector3& pos, int landmark_id) : position(pos), id(landmark_id) {
         if (pos.size() != 3) {
             throw std::invalid_argument("Landmark position must be a 3D vector.");
@@ -90,13 +90,13 @@ struct Landmark {
 
 struct Measurement {
     int seq_number;
-    int current_id;
-    int actual_id;
+    int point_id;
+    int landmark_id;
     Vector2 image_point;
 
-    Measurement() : seq_number(0), current_id(0), actual_id(0) {}
+    Measurement() : seq_number(0), point_id(0), landmark_id(0) {}
     Measurement(int seq, int cur_id, int act_id, const Vector2& img_pt)
-        : seq_number(seq), current_id(cur_id), actual_id(act_id), image_point(img_pt) {
+        : seq_number(seq), point_id(cur_id), landmark_id(act_id), image_point(img_pt) {
         if (img_pt.size() != 2) {
             throw std::invalid_argument("Measurement image_point must be a 2D vector.");
         }
@@ -104,23 +104,23 @@ struct Measurement {
 
     Measurement(const Measurement& other)
         : seq_number(other.seq_number),
-          current_id(other.current_id),
-          actual_id(other.actual_id),
+          point_id(other.point_id),
+          landmark_id(other.landmark_id),
           image_point(other.image_point) {}
 
     const Measurement& operator=(const Measurement& other) {
         if (this != &other) {
             seq_number = other.seq_number;
-            current_id = other.current_id;
-            actual_id = other.actual_id;
+            point_id = other.point_id;
+            landmark_id = other.landmark_id;
             image_point = other.image_point;
         }
         return *this;
     }
 
     bool operator==(const Measurement& other) const {
-        return seq_number == other.seq_number && current_id == other.current_id
-               && actual_id == other.actual_id && image_point.isApprox(other.image_point);
+        return seq_number == other.seq_number && point_id == other.point_id
+               && landmark_id == other.landmark_id && image_point.isApprox(other.image_point);
     }
 
     bool isNear(const Measurement& other, Scalar threshold) const {
@@ -131,8 +131,8 @@ struct Measurement {
         std::ostringstream oss;
         oss << "Measurement:\n"
             << "Sequence Number: " << seq_number << "\n"
-            << "Current ID: " << current_id << "\n"
-            << "Actual ID: " << actual_id << "\n"
+            << "Point ID: " << point_id << "\n"
+            << "Landmark ID: " << landmark_id << "\n"
             << "Image Point: " << image_point.transpose();
         return oss.str();
     }
@@ -195,6 +195,30 @@ struct Dataset {
         camera = load_camera_data(folderpath);
         world = load_world_data(folderpath);
         trajectory = load_trajectory(folderpath);
+    }
+
+    std::vector<Pose2> getOdometryPoses() const {
+        std::vector<Pose2> traj;
+        for (const auto& traj_point : trajectory) {
+            traj.push_back(traj_point.odometry);
+        }
+        return traj;
+    }
+
+    std::vector<Pose2> getGroundTruthPoses() const {
+        std::vector<Pose2> traj;
+        for (const auto& traj_point : trajectory) {
+            traj.push_back(traj_point.ground_truth);
+        }
+        return traj;
+    }
+
+    std::vector<Vector3> getLandmarkPositions() const {
+        std::vector<Vector3> positions;
+        for (const auto& landmark : world) {
+            positions.push_back(landmark.position);
+        }
+        return positions;
     }
 
     std::string toString() const {

@@ -86,12 +86,12 @@ static void _add_measurements(std::vector<TrajPoint>& trajectory, const std::str
             }
             try {
                 int current_id = std::stoi(parts[1]);
-                int actual_id = std::stoi(parts[2]);
+                int landmark_id = std::stoi(parts[2]);
                 Scalar image_point_x = std::stod(parts[3]);
                 Scalar image_point_y = std::stod(parts[4]);
 
                 Vector2 image_point(image_point_x, image_point_y);
-                Measurement measurement(seq_number, current_id, actual_id, image_point);
+                Measurement measurement(seq_number, current_id, landmark_id, image_point);
 
                 if (static_cast<size_t>(seq_number) < trajectory.size()) {
                     trajectory[seq_number].measurements.push_back(measurement);

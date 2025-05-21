@@ -1,12 +1,50 @@
+import os
 import numpy as np
 import matplotlib.pyplot as plt
-from utils import project_root
+from pms_py.utils import project_root
+from pms import Dataset
 
-trajectory = np.loadtxt(f"{project_root()}/data/trajectory.dat")
 
-odom_traj = np.stack((trajectory[:, 1], trajectory[:, 2], trajectory[:, 3]), axis=1)
-gt_traj = np.stack((trajectory[:, 4], trajectory[:, 5], trajectory[:, 6]), axis=1)
-plt.plot(odom_traj[:, 0], odom_traj[:, 1], "bo", label="odometry")
-plt.plot(gt_traj[:, 0], gt_traj[:, 1], "ro", label="ground truth")
-plt.legend()
-plt.show()
+def plot_trajectory(dataset: Dataset) -> None:
+    """
+    Plot the trajectory of the dataset.
+    """
+    odom_traj = dataset.getOdometryPoses()
+    gt_traj = dataset.getGroundTruthPoses()
+
+    plt.plot(
+        [odom.translation[0] for odom in odom_traj],
+        [odom.translation[1] for odom in odom_traj],
+        "ro",
+        label="odometry",
+    )
+    plt.plot(
+        [gt.translation[0] for gt in gt_traj],
+        [gt.translation[1] for gt in gt_traj],
+        "go",
+        label="ground truth",
+    )
+    plt.legend()
+    plt.show()
+
+
+def plot(dataset: Dataset, with_trajectory: bool = True) -> None:
+    """
+    Plot the dataset
+    """
+    landmarks = np.array(dataset.getLandmarkPositions())
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.scatter(landmarks[:, 0], landmarks[:, 1], landmarks[:, 2], c="r", marker="o", label="landmarks")
+    ax.set_title("Landmarks")
+    
+    if with_trajectory:
+        plot_trajectory(dataset)
+    
+    plt.show()
+
+
+def main():
+    data_path = os.path.join(project_root(), "data")
+    dataset = Dataset(data_path)
+    plot(dataset)

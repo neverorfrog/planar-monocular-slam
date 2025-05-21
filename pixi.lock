@@ -3165,7 +3165,7 @@ packages:
   - rich 13.9.*
   - python
   input:
-    hash: 8c333a4fb7bae7b6e39fa8129f5abe1676dc71698eb3f2af06c726587f45c476
+    hash: b79515b1bf94b503ef8735d58b448d66dac6d4922950444e94c8c893e9cc2d48
     globs:
     - pixi.toml
 - conda: https://prefix.dev/conda-forge/linux-64/pthread-stubs-0.4-hb9d3cd8_1002.conda

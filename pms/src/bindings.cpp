@@ -9,6 +9,8 @@
 #include "pms/math/pose2.h"
 #include "pms/math/pose3.h"
 #include "pms/math/rotation_matrix.h"
+#include "pms/solution.h"
+#include "pms/triangulation.h"
 
 namespace nb = nanobind;
 using EigenMatrix = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>;
@@ -57,7 +59,7 @@ NB_MODULE(pms, m) {
         .def("__str__", &Camera::toString);
 
     nb::class_<Landmark>(m, "Landmark")
-        .def(nb::init<>())
+        .def(nb::init<const int>())
         .def(nb::init<const Vector3 &, const int>())
         .def(nb::init<const Landmark &>())
         .def(
@@ -75,8 +77,8 @@ NB_MODULE(pms, m) {
             "__copy__", [](const Measurement &self) { return new Measurement(self); },
             nb::rv_policy::take_ownership)
         .def_ro("seq_number", &Measurement::seq_number)
-        .def_ro("current_id", &Measurement::current_id)
-        .def_ro("actual_id", &Measurement::actual_id)
+        .def_ro("point_id", &Measurement::point_id)
+        .def_ro("landmark_id", &Measurement::landmark_id)
         .def_ro("image_point", &Measurement::image_point)
         .def("__str__", &Measurement::toString);
 
@@ -100,7 +102,24 @@ NB_MODULE(pms, m) {
         .def_ro("camera", &Dataset::camera)
         .def_ro("world", &Dataset::world)
         .def_ro("trajectory", &Dataset::trajectory)
+        .def("getOdometryPoses", &Dataset::getOdometryPoses)
+        .def("getGroundTruthPoses", &Dataset::getGroundTruthPoses)
+        .def("getLandmarkPositions", &Dataset::getLandmarkPositions)
         .def("__str__", &Dataset::toString);
+
+    nb::class_<Solution>(m, "Solution")
+        .def(nb::init<>())
+        .def(nb::init<const Dataset &>())
+        .def(
+            "__copy__", [](const Solution &self) { return new Solution(self); },
+            nb::rv_policy::take_ownership)
+        .def_ro("trajectory", &Solution::trajectory)
+        .def_ro("world", &Solution::world)
+        .def_ro("errors", &Solution::errors)
+        .def("__str__", &Solution::toString);
+
+    m.def("triangulate", &triangulate, nb::arg("solution"), nb::arg("dataset"),
+          "Triangulate landmarks from the given dataset and update the solution.");
 };
 
 }  // namespace python
