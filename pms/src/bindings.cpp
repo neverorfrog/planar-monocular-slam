@@ -9,7 +9,7 @@
 #include "pms/math/pose2.h"
 #include "pms/math/pose3.h"
 #include "pms/math/rotation_matrix.h"
-#include "pms/solution.h"
+#include "pms/types/solution.h"
 #include "pms/triangulation.h"
 
 namespace nb = nanobind;

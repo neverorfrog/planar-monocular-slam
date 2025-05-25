@@ -5,10 +5,97 @@
 #include <regex>
 #include <sstream>
 #include <stdexcept>
+#include <filesystem>
+
+namespace fs = std::filesystem;
 
 namespace pms {
 
-// Helper function to load trajectory without measurements
+/**
+ * @brief Dataset constructor - loads all data from folder structure
+ * @param folderpath Path to folder containing dataset files
+ * @throws std::runtime_error if folder doesn't exist or files cannot be loaded
+ */
+Dataset::Dataset(const std::string& folderpath) {
+    if (!fs::exists(folderpath) || !fs::is_directory(folderpath)) {
+        throw std::runtime_error("Dataset folder not found or is not a directory: " + folderpath);
+    }
+
+    // Load all dataset components
+    camera = loadCameraData(folderpath);
+    world = loadWorldData(folderpath);
+    trajectory = loadTrajectory(folderpath);
+}
+
+/**
+ * @brief Extract odometry poses from trajectory
+ * @return Vector of odometry poses
+ */
+std::vector<Pose3> Dataset::getOdometryPoses() const {
+    std::vector<Pose3> poses;
+    poses.reserve(trajectory.size());
+    for (const auto& point : trajectory) {
+        poses.push_back(point.odometry);
+    }
+    return poses;
+}
+
+/**
+ * @brief Extract ground truth poses from trajectory
+ * @return Vector of ground truth poses
+ */
+std::vector<Pose3> Dataset::getGroundTruthPoses() const {
+    std::vector<Pose3> poses;
+    poses.reserve(trajectory.size());
+    for (const auto& point : trajectory) {
+        poses.push_back(point.ground_truth);
+    }
+    return poses;
+}
+
+/**
+ * @brief Extract landmark positions from world data
+ * @return Vector of 3D landmark positions
+ */
+std::vector<Vector3> Dataset::getLandmarkPositions() const {
+    std::vector<Vector3> positions;
+    positions.reserve(world.size());
+    for (const auto& landmark : world) {
+        positions.push_back(landmark.position);
+    }
+    return positions;
+}
+
+/**
+ * @brief Convert dataset to string representation
+ * @return String containing formatted dataset information
+ */
+std::string Dataset::toString() const {
+    std::ostringstream oss;
+    oss << "Dataset:\n"
+        << "Camera: " << camera.toString() << "\n"
+        << "World landmarks: " << world.size() << " landmarks\n"
+        << "Trajectory: " << trajectory.size() << " points\n";
+    
+    // Add sample landmark info
+    if (!world.empty()) {
+        oss << "First landmark: " << world[0].toString() << "\n";
+    }
+    
+    // Add sample trajectory info
+    if (!trajectory.empty()) {
+        oss << "First trajectory point: " << trajectory[0].toString() << "\n";
+    }
+    
+    return oss.str();
+}
+
+/**
+ * @brief Helper function to load trajectory without measurements
+ * @param filepath Path to trajectory.dat file
+ * @return Vector of TrajPoint objects without measurements
+ * @throws std::runtime_error if file cannot be read or parsed
+ */
 static std::vector<TrajPoint> _load_trajectory_without_meas(const std::string& filepath) {
     std::vector<TrajPoint> trajectory;
     std::ifstream file(filepath);
@@ -57,7 +144,12 @@ static std::vector<TrajPoint> _load_trajectory_without_meas(const std::string& f
     return trajectory;
 }
 
-// Helper function to add measurements to trajectory
+/**
+ * @brief Helper function to add measurements to trajectory points
+ * @param trajectory Reference to trajectory vector to modify
+ * @param meas_filepath Path to measurement file
+ * @throws std::runtime_error if file cannot be read or parsed
+ */
 static void _add_measurements(std::vector<TrajPoint>& trajectory, const std::string& meas_filepath) {
     std::ifstream file(meas_filepath);
     if (!file.is_open()) {
@@ -111,7 +203,7 @@ static void _add_measurements(std::vector<TrajPoint>& trajectory, const std::str
     }
 }
 
-std::vector<TrajPoint> load_trajectory(const std::string& folderpath_str) {
+std::vector<TrajPoint> Dataset::loadTrajectory(const std::string& folderpath_str) {
     fs::path folderpath(folderpath_str);
     if (!fs::exists(folderpath) || !fs::is_directory(folderpath)) {
         throw std::runtime_error("Folder not found or is not a directory: " + folderpath_str);
@@ -133,7 +225,7 @@ std::vector<TrajPoint> load_trajectory(const std::string& folderpath_str) {
     return trajectory;
 }
 
-Camera load_camera_data(const std::string& folderpath_str) {
+Camera Dataset::loadCameraData(const std::string& folderpath_str) {
     fs::path folderpath(folderpath_str);
     std::ifstream file((folderpath / "camera.dat").string());
     if (!file.is_open()) {
@@ -203,7 +295,7 @@ Camera load_camera_data(const std::string& folderpath_str) {
     return cam;
 }
 
-std::vector<Landmark> load_world_data(const std::string& folderpath_str) {
+std::vector<Landmark> Dataset::loadWorldData(const std::string& folderpath_str) {
     fs::path folderpath(folderpath_str);
     std::ifstream file((folderpath / "world.dat").string());
     if (!file.is_open()) {

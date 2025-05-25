@@ -96,11 +96,11 @@ def main():
     # Logging and plotting
     guessed_positions = np.array([lm.position for lm in guessed_landmarks])
     valid_landmarks = np.array([lm.valid for lm in guessed_landmarks])
-    error = np.linalg.norm(gt_positions - guessed_positions, axis=1)
-    print(f"Mean error: {np.mean(error):.4f}")
+    error = np.linalg.norm(gt_positions[valid_landmarks] - guessed_positions[valid_landmarks], axis=1)
     plot_initial_guess(gt_positions, guessed_positions, valid_landmarks)
     plot_trajectory(dataset)
     plt.legend()
     plt.show()
+    print(f"Mean error: {np.mean(error):.4f}")
     
     

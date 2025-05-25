@@ -6,7 +6,7 @@
 #include "Eigen/Core"
 #include "pms/dataset.h"
 #include "pms/math/definitions.h"
-#include "pms/solution.h"
+#include "pms/types/solution.h"
 
 namespace pms {
 
