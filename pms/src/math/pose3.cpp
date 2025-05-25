@@ -20,7 +20,7 @@ Pose3::Pose3(const RotationMatrix& rotation, const Scalar x, const Scalar y, con
     : rotation(rotation), translation(x, y, z) {}
 
 Pose3::Pose3(const Pose2& pose2) {
-    translation << pose2.translation(0), pose2.translation(1), 0;
+    translation << pose2.translation(0), pose2.translation(1), 0.0;
     rotation = RotationMatrix::aroundZ(pose2.rotation);
 }
 
@@ -134,7 +134,7 @@ Pose3 Pose3::inverse() const {
 }
 
 Matrix4 Pose3::getHomogen() const {
-    Matrix4 m = Matrix4::Zero();
+    Matrix4 m = Matrix4::Identity();
     m.block<3, 3>(0, 0) = rotation;
     m.block<3, 1>(0, 3) = translation;
     return m;

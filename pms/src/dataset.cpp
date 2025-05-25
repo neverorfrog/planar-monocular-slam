@@ -37,10 +37,14 @@ static std::vector<TrajPoint> _load_trajectory_without_meas(const std::string& f
                 Scalar gt_y = std::stod(parts[5]);
                 Scalar gt_theta = std::stod(parts[6]);
 
-                Pose2 odometry(odom_theta, Vector2(odom_x, odom_y));
-                Pose2 ground_truth(gt_theta, Vector2(gt_x, gt_y));
+                Pose2 odometry2d(odom_theta, Vector2(odom_x, odom_y));
+                Pose3 odometry(odometry2d);
+                Pose2 ground_truth2d(gt_theta, Vector2(gt_x, gt_y));
+                Pose3 ground_truth(ground_truth2d);
 
-                trajectory.emplace_back(traj_id, odometry, ground_truth);
+                TrajPoint traj_point = TrajPoint(traj_id, odometry, ground_truth);
+
+                trajectory.emplace_back(traj_point);
             } catch (const std::exception& e) {
                 std::cerr << "Skipping line " << line_num << " due to parsing error: " << line << " - "
                           << e.what() << std::endl;
@@ -224,7 +228,7 @@ std::vector<Landmark> load_world_data(const std::string& folderpath_str) {
                 Scalar x = std::stod(parts[1]);
                 Scalar y = std::stod(parts[2]);
                 Scalar z = std::stod(parts[3]);
-                world.emplace_back(Vector3(x, y, z), landmark_id);
+                world.emplace_back(Vector3(x, y, z), landmark_id, true);
             } catch (const std::exception& e) {
                 std::cerr << "Skipping line in world.dat due to parsing error: " << line << " - " << e.what()
                           << std::endl;

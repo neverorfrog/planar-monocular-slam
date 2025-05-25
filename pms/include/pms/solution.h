@@ -2,12 +2,12 @@
 
 #include "pms/dataset.h"
 #include "pms/math/definitions.h"
-#include "pms/math/pose2.h"
+#include "pms/math/pose3.h"
 
 namespace pms {
 
 struct Solution {
-    std::vector<Pose2> trajectory;
+    std::vector<Pose3> trajectory;
     std::vector<Landmark> world;
     std::vector<Scalar> errors;
 

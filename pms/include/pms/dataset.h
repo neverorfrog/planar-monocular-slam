@@ -5,7 +5,6 @@
 #include <vector>
 
 #include "pms/math/definitions.h"
-#include "pms/math/pose2.h"
 #include "pms/math/pose3.h"
 
 namespace fs = std::filesystem;
@@ -58,20 +57,22 @@ struct Camera {
 struct Landmark {
     Vector3 position;
     int id;
+    bool valid;
 
-    Landmark(int landmark_id) : position(Vector3::Zero()), id(landmark_id) {}
-    Landmark(const Vector3& pos, int landmark_id) : position(pos), id(landmark_id) {
+    Landmark(int landmark_id) : position(Vector3::Zero()), id(landmark_id), valid(false) {}
+    Landmark(const Vector3& pos, int landmark_id, bool valid) : position(pos), id(landmark_id), valid(valid) {
         if (pos.size() != 3) {
             throw std::invalid_argument("Landmark position must be a 3D vector.");
         }
     }
 
-    Landmark(const Landmark& other) : position(other.position), id(other.id) {}
+    Landmark(const Landmark& other) : position(other.position), id(other.id), valid(other.valid) {}
 
     const Landmark& operator=(const Landmark& other) {
         if (this != &other) {
             position = other.position;
             id = other.id;
+            valid = other.valid;
         }
         return *this;
     }
@@ -140,12 +141,12 @@ struct Measurement {
 
 struct TrajPoint {
     int id;
-    Pose2 odometry;
-    Pose2 ground_truth;
+    Pose3 odometry;
+    Pose3 ground_truth;
     std::vector<Measurement> measurements;
 
     TrajPoint() : id(0) {}
-    TrajPoint(int point_id, const Pose2& odom, const Pose2& gt)
+    TrajPoint(int point_id, const Pose3& odom, const Pose3& gt)
         : id(point_id), odometry(odom), ground_truth(gt) {}
 
     TrajPoint(const TrajPoint& other)
@@ -197,16 +198,16 @@ struct Dataset {
         trajectory = load_trajectory(folderpath);
     }
 
-    std::vector<Pose2> getOdometryPoses() const {
-        std::vector<Pose2> traj;
+    std::vector<Pose3> getOdometryPoses() const {
+        std::vector<Pose3> traj;
         for (const auto& traj_point : trajectory) {
             traj.push_back(traj_point.odometry);
         }
         return traj;
     }
 
-    std::vector<Pose2> getGroundTruthPoses() const {
-        std::vector<Pose2> traj;
+    std::vector<Pose3> getGroundTruthPoses() const {
+        std::vector<Pose3> traj;
         for (const auto& traj_point : trajectory) {
             traj.push_back(traj_point.ground_truth);
         }

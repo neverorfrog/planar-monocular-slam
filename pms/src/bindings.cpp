@@ -60,13 +60,14 @@ NB_MODULE(pms, m) {
 
     nb::class_<Landmark>(m, "Landmark")
         .def(nb::init<const int>())
-        .def(nb::init<const Vector3 &, const int>())
+        .def(nb::init<const Vector3 &, const int, const bool>())
         .def(nb::init<const Landmark &>())
         .def(
             "__copy__", [](const Landmark &self) { return new Landmark(self); },
             nb::rv_policy::take_ownership)
         .def_ro("position", &Landmark::position)
         .def_ro("id", &Landmark::id)
+        .def_ro("valid", &Landmark::valid)
         .def("__str__", &Landmark::toString);
 
     nb::class_<Measurement>(m, "Measurement")
@@ -84,7 +85,7 @@ NB_MODULE(pms, m) {
 
     nb::class_<TrajPoint>(m, "TrajPoint")
         .def(nb::init<>())
-        .def(nb::init<const int, const Pose2 &, const Pose2 &>())
+        .def(nb::init<const int, const Pose3 &, const Pose3 &>())
         .def(nb::init<const TrajPoint &>())
         .def(
             "__copy__", [](const TrajPoint &self) { return new TrajPoint(self); },
