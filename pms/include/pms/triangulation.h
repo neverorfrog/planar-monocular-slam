@@ -95,10 +95,7 @@ inline void triangulate(Solution& solution, const Dataset& dataset) {
     }
 
     // Get odometry poses for each measurement in each landmark and triangulate
-    int failed_guesses = 0;
     for (size_t i = 0; i < measurements_per_landmark.size(); ++i) {
-        std::cout << "Triangulating landmark " << i << " with " << measurements_per_landmark[i].size()
-                  << " measurements." << std::endl;
         const std::vector<Measurement>& measurements = measurements_per_landmark[i];
         if (measurements.size() < 2) {
             std::cerr << "Not enough measurements to triangulate landmark " << i << "\n\n";
@@ -114,12 +111,9 @@ inline void triangulate(Solution& solution, const Dataset& dataset) {
 
         std::pair<Vector3, bool> landmark_pos_guess
             = triangulateLandmark(odom_poses, measurements, dataset.camera);
-        failed_guesses += !landmark_pos_guess.second ? 1 : 0;
         solution.world.at(i).position = landmark_pos_guess.first;
         solution.world.at(i).valid = landmark_pos_guess.second;
     }
-
-    std::cout << "FAILED GUESSES " << failed_guesses << "\n\n";
 }
 
 }  // namespace pms
