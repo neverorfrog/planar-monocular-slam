@@ -96,6 +96,12 @@ public:
     std::vector<Vector3> getLandmarkPositions() const;
 
     /**
+     * @brief Get all landmark positions as a vector of Vector3
+     * @return Vector of 3D landmark positions
+     */
+    std::vector<std::vector<Measurement>> getMeasurementsPerLandmark() const;
+
+    /**
      * @brief Convert dataset to string representation
      * @return String containing formatted dataset information
      */

@@ -2,15 +2,14 @@
 
 #include <iostream>
 
-
 namespace pms {
 
-BundleAdjuster::BundleAdjuster(const Solution& solution, const Dataset& dataset,
-                               const BundleAdjustmentConfig& config)
+BundleAdjuster::BundleAdjuster(const std::vector<Landmark>& landmarks, const Dataset& dataset, const BundleAdjustmentConfig& config)
     : config(config), stats{} {
-    state = State(dataset.getOdometryPoses2(), solution.world);
+    state = State(dataset.getOdometryPoses2(), landmarks);
     camera = dataset.camera;
-    // TODO: Extract flat measurements from dataset
+    measurements = dataset.getMeasurementsPerLandmark();
+    std::cout << "NUMBER OF LANDMARKS: " << measurements.size() << std::endl;
     std::cout << "BundleAdjuster initialized with max iterations: " << config.max_iterations
               << " and tolerance: " << config.tolerance << std::endl;
     std::cout << "NUMBER OF ODOM POSES " << state.getNumPoses() << std::endl;

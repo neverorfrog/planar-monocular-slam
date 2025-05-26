@@ -11,7 +11,6 @@
 #include "pms/math/rotation_matrix.h"
 #include "pms/optimization/bundle_adjuster.h"
 #include "pms/optimization/state.h"
-#include "pms/types/solution.h"
 #include "pms/triangulation.h"
 
 namespace nb = nanobind;
@@ -109,17 +108,6 @@ NB_MODULE(pms, m) {
         .def("getLandmarkPositions", &Dataset::getLandmarkPositions)
         .def("__str__", &Dataset::toString);
 
-    nb::class_<Solution>(m, "Solution")
-        .def(nb::init<>())
-        .def(nb::init<const Dataset &>())
-        .def(
-            "__copy__", [](const Solution &self) { return new Solution(self); },
-            nb::rv_policy::take_ownership)
-        .def_ro("trajectory", &Solution::trajectory)
-        .def_ro("world", &Solution::world)
-        .def_ro("errors", &Solution::errors)
-        .def("__str__", &Solution::toString);
-
     nb::class_<State>(m, "State")
         .def(nb::init<>())
         .def_ro("robot_poses", &State::robot_poses)
@@ -141,12 +129,12 @@ NB_MODULE(pms, m) {
         .def("__str__", &BundleAdjuster::OptimizationStats::toString);
 
     nb::class_<BundleAdjuster>(m, "BundleAdjuster")
-        .def(nb::init<const Solution &, const Dataset &, const BundleAdjustmentConfig &>())
+        .def(nb::init<const std::vector<Landmark> &, const Dataset &, const BundleAdjustmentConfig &>())
         .def("performIteration", &BundleAdjuster::performIteration, "Perform a single iteration of bundle adjustment.")
         .def("getStats", &BundleAdjuster::getStats, "Get optimization statistics after running bundle adjustment.");
 
-    m.def("triangulate", &triangulate, nb::arg("solution"), nb::arg("dataset"),
-          "Triangulate landmarks from the given dataset and update the solution.");
+    m.def("triangulate", &triangulate, nb::arg("dataset"),
+          "Triangulate landmarks from the given dataset and return a vector of landmarks.");
 
 };
 

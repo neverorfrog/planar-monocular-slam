@@ -1,11 +1,11 @@
 #include "pms/dataset.h"
 
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <regex>
 #include <sstream>
 #include <stdexcept>
-#include <filesystem>
 
 namespace fs = std::filesystem;
 
@@ -67,23 +67,38 @@ std::vector<Vector3> Dataset::getLandmarkPositions() const {
     return positions;
 }
 
+std::vector<std::vector<Measurement>> Dataset::getMeasurementsPerLandmark() const {
+    std::vector<std::vector<Measurement>> measurements_per_landmark(world.size());
+    for (const auto& traj_point : trajectory) {
+        for (const auto& measurement : traj_point.measurements) {
+            int landmark_id = measurement.landmark_id;
+            if (landmark_id >= 0 && static_cast<size_t>(landmark_id) < world.size()) {
+                measurements_per_landmark[landmark_id].push_back(measurement);
+            } else {
+                std::cerr << "Invalid landmark ID " << landmark_id << " in measurement." << std::endl;
+            }
+        }
+    }
+    return measurements_per_landmark;
+}
+
 std::string Dataset::toString() const {
     std::ostringstream oss;
     oss << "Dataset:\n"
         << "Camera: " << camera.toString() << "\n"
         << "World landmarks: " << world.size() << " landmarks\n"
         << "Trajectory: " << trajectory.size() << " points\n";
-    
+
     // Add sample landmark info
     if (!world.empty()) {
         oss << "First landmark: " << world[0].toString() << "\n";
     }
-    
+
     // Add sample trajectory info
     if (!trajectory.empty()) {
         oss << "First trajectory point: " << trajectory[0].toString() << "\n";
     }
-    
+
     return oss.str();
 }
 

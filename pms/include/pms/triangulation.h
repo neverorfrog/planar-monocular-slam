@@ -6,7 +6,7 @@
 #include "Eigen/Core"
 #include "pms/dataset.h"
 #include "pms/math/definitions.h"
-#include "pms/types/solution.h"
+#include "pms/types/landmark.h"
 
 namespace pms {
 
@@ -72,8 +72,8 @@ inline std::pair<Vector3, bool> triangulateLandmark(const std::vector<Pose3>& od
         }
 
         if (depth_in_camera > camera.z_far) {
-            std::cerr << "Cheirality/Range check failed: Landmark beyond z_far for view "
-                      << i << ". Depth: " << depth_in_camera << " > z_far: " << camera.z_far << std::endl;
+            std::cerr << "Cheirality/Range check failed: Landmark beyond z_far for view " << i
+                      << ". Depth: " << depth_in_camera << " > z_far: " << camera.z_far << std::endl;
             return std::make_pair(Vector3::Zero(), false);
         }
     }
@@ -81,24 +81,18 @@ inline std::pair<Vector3, bool> triangulateLandmark(const std::vector<Pose3>& od
     return std::make_pair(p, true);
 }
 
-inline void triangulate(Solution& solution, const Dataset& dataset) {
-    // Parse measurement for each landmark
-    // TODO: Should i consider only measurements where the landmark is also visible in the next or previous
-    // frame?
-    std::vector<std::vector<Measurement>> measurements_per_landmark(dataset.world.size());
-    for (const auto& traj_point : dataset.trajectory) {
-        for (const auto& measurement : traj_point.measurements) {
-            int landmark_id = measurement.landmark_id;
-            assert(landmark_id >= 0 && landmark_id < dataset.world.size());
-            measurements_per_landmark[landmark_id].push_back(measurement);
-        }
-    }
+inline std::vector<Landmark> triangulate(const Dataset& dataset) {
+    std::vector<Landmark> guessed_landmarks;
+
+    // TODO: Should i consider only meas where the landmark is also visible in the next or previous frame?
+    std::vector<std::vector<Measurement>> measurements_per_landmark = dataset.getMeasurementsPerLandmark();
 
     // Get odometry poses for each measurement in each landmark and triangulate
     for (size_t i = 0; i < measurements_per_landmark.size(); ++i) {
         const std::vector<Measurement>& measurements = measurements_per_landmark[i];
         if (measurements.size() < 2) {
             std::cerr << "Not enough measurements to triangulate landmark " << i << "\n\n";
+            guessed_landmarks.push_back(Landmark(Vector3::Zero(), i, false));
             continue;
         }
 
@@ -111,9 +105,10 @@ inline void triangulate(Solution& solution, const Dataset& dataset) {
 
         std::pair<Vector3, bool> landmark_pos_guess
             = triangulateLandmark(odom_poses, measurements, dataset.camera);
-        solution.world.at(i).position = landmark_pos_guess.first;
-        solution.world.at(i).valid = landmark_pos_guess.second;
+        guessed_landmarks.push_back(Landmark(landmark_pos_guess.first, i, landmark_pos_guess.second));
     }
+
+    return guessed_landmarks;
 }
 
 }  // namespace pms

@@ -5,7 +5,6 @@
 #include "pms/dataset.h"
 #include "pms/optimization/state.h"
 #include "pms/types/camera.h"
-#include "pms/types/solution.h"
 
 namespace pms {
 
@@ -36,9 +35,10 @@ class BundleAdjuster {
    public:
     /**
      * @brief Constructor with configuration
+     * @param dataset Dataset containing camera, landmarks, and trajectory
      * @param config Bundle adjustment configuration parameters
      */
-    explicit BundleAdjuster(const Solution& solution, const Dataset& dataset,
+    explicit BundleAdjuster(const std::vector<Landmark>& landmarks, const Dataset& dataset,
                             const BundleAdjustmentConfig& config = BundleAdjustmentConfig{});
 
     /**
@@ -59,22 +59,21 @@ class BundleAdjuster {
         bool converged;              ///< Whether optimization converged
 
         std::string toString() const {
-            return "OptimizationStats{iterations: " + std::to_string(num_iterations) +
-                   ", initial_cost: " + std::to_string(initial_cost) +
-                   ", final_cost: " + std::to_string(final_cost) +
-                   ", gradient_norm: " + std::to_string(final_gradient_norm) +
-                   ", converged: " + (converged ? "true" : "false") + "}";
+            return "OptimizationStats{iterations: " + std::to_string(num_iterations) + ", initial_cost: "
+                   + std::to_string(initial_cost) + ", final_cost: " + std::to_string(final_cost)
+                   + ", gradient_norm: " + std::to_string(final_gradient_norm)
+                   + ", converged: " + (converged ? "true" : "false") + "}";
         }
     };
 
     const OptimizationStats& getStats() const;
 
    private:
-    BundleAdjustmentConfig config;          ///< Configuration parameters
-    OptimizationStats stats;                ///< Optimization statistics
-    State state;                            ///< Current optimization state
-    std::vector<Measurement> measurements;  ///< Flat measurement vector for optimization
-    Camera camera;                          ///< Camera parameters for projection
+    BundleAdjustmentConfig config;                       ///< Configuration parameters
+    OptimizationStats stats;                             ///< Optimization statistics
+    State state;                                         ///< Current optimization state
+    std::vector<std::vector<Measurement>> measurements;  ///< Flat measurement vector
+    Camera camera;                                       ///< Camera parameters for projection
 };
 
 }  // namespace pms

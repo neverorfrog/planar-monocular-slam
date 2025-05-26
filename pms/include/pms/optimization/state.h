@@ -18,7 +18,7 @@ namespace pms {
 class State {
    public:
     std::vector<Pose2> robot_poses;           ///< Robot poses in SE(2) for planar SLAM
-    std::vector<Landmark> landmarks;           ///< 3D landmarks
+    std::vector<Landmark> landmarks;          ///< 3D landmarks
 
     /**
      * @brief Default constructor
