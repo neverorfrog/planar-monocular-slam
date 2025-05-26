@@ -11,7 +11,7 @@ pms_py = { path = "." }
 pms = { path = "pms" }
 matplotlib = ">=3.10.1,<4"
 numpy = ">=2.2.4,<3"
-nanobind = "2.4.*"
+nanobind = "==2.7.0"
 
 
 [tasks]
