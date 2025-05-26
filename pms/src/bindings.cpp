@@ -9,9 +9,10 @@
 #include "pms/math/pose2.h"
 #include "pms/math/pose3.h"
 #include "pms/math/rotation_matrix.h"
+#include "pms/optimization/bundle_adjuster.h"
+#include "pms/optimization/state.h"
 #include "pms/types/solution.h"
 #include "pms/triangulation.h"
-#include "pms/bundle_adjustment.h"
 
 namespace nb = nanobind;
 using EigenMatrix = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>;
@@ -124,11 +125,29 @@ NB_MODULE(pms, m) {
         .def_ro("robot_poses", &State::robot_poses)
         .def_ro("landmarks", &State::landmarks);
 
+    nb::class_<BundleAdjustmentConfig>(m, "BundleAdjustmentConfig")
+        .def(nb::init<>())
+        .def_rw("max_iterations", &BundleAdjustmentConfig::max_iterations)
+        .def_rw("tolerance", &BundleAdjustmentConfig::tolerance)
+        .def_rw("pose_landmark", &BundleAdjustmentConfig::pose_landmark)
+        .def_rw("pose_pose", &BundleAdjustmentConfig::pose_pose);
+
+    nb::class_<BundleAdjuster::OptimizationStats>(m, "OptimizationStats")
+        .def_ro("num_iterations", &BundleAdjuster::OptimizationStats::num_iterations)
+        .def_ro("initial_cost", &BundleAdjuster::OptimizationStats::initial_cost)
+        .def_ro("final_cost", &BundleAdjuster::OptimizationStats::final_cost)
+        .def_ro("final_gradient_norm", &BundleAdjuster::OptimizationStats::final_gradient_norm)
+        .def_ro("converged", &BundleAdjuster::OptimizationStats::converged)
+        .def("__str__", &BundleAdjuster::OptimizationStats::toString);
+
+    nb::class_<BundleAdjuster>(m, "BundleAdjuster")
+        .def(nb::init<const Solution &, const Dataset &, const BundleAdjustmentConfig &>())
+        .def("performIteration", &BundleAdjuster::performIteration, "Perform a single iteration of bundle adjustment.")
+        .def("getStats", &BundleAdjuster::getStats, "Get optimization statistics after running bundle adjustment.");
+
     m.def("triangulate", &triangulate, nb::arg("solution"), nb::arg("dataset"),
           "Triangulate landmarks from the given dataset and update the solution.");
-    
-    m.def("bundleAdjust", &bundleAdjust, nb::arg("solution"), nb::arg("dataset"),
-          "Perform bundle adjustment using pose-landmark and pose-pose constraints.");
+
 };
 
 }  // namespace python

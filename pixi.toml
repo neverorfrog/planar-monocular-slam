@@ -12,12 +12,10 @@ pms = { path = "pms" }
 matplotlib = ">=3.10.1,<4"
 numpy = ">=2.2.4,<3"
 nanobind = "==2.7.0"
-
+tqdm = ">=4.67.1,<5"
 
 [tasks]
-start = "rich-example-main"
 build = 'cd pms && mkdir -p build && cd build && cmake .. && cmake --build . -j$(nproc)'
-dataset_cpp = 'pms/build/dataset /home/neverorfrog/code/planar-monocular-slam/data'
 stubgen-pms = "python -m nanobind.stubgen -m pms"
 
 [package]

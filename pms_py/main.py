@@ -2,9 +2,10 @@ import os
 from matplotlib import pyplot as plt
 import numpy as np
 from pms_py.utils import project_root
-from pms import Dataset, triangulate, Solution, bundleAdjust
+from pms import Dataset, triangulate, Solution, BundleAdjuster, BundleAdjustmentConfig
 from pms_py.evaluation import initial_guess_error
 from pms_py.visualization import plot_landmarks, plot_trajectory
+import tqdm
 
 def main():
     # Load dataset
@@ -12,7 +13,7 @@ def main():
     dataset = Dataset(data_path)
     gt_positions = np.array(dataset.getLandmarkPositions())
     
-    # triangulate landmarks for initial guess
+    # Triangulate landmarks for initial guess
     solution = Solution(dataset)
     triangulate(solution, dataset)
     guessed_landmarks = solution.world
@@ -26,7 +27,12 @@ def main():
     plt.legend()
     # plt.show()
     
-    # Bundle adjustment
-    bundleAdjust(solution, dataset)
-    
-    
+    # Bundle Adjustment
+    ba_config = BundleAdjustmentConfig()
+    ba = BundleAdjuster(solution, dataset, ba_config)
+    for iteration in tqdm.tqdm(range(ba_config.max_iterations)):
+        ba.performIteration()
+        
+        # TODO: Print information about intermadiate optimization results
+        # TODO: Plot intermediate results
+        print(ba.getStats())
