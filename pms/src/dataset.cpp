@@ -11,11 +11,6 @@ namespace fs = std::filesystem;
 
 namespace pms {
 
-/**
- * @brief Dataset constructor - loads all data from folder structure
- * @param folderpath Path to folder containing dataset files
- * @throws std::runtime_error if folder doesn't exist or files cannot be loaded
- */
 Dataset::Dataset(const std::string& folderpath) {
     if (!fs::exists(folderpath) || !fs::is_directory(folderpath)) {
         throw std::runtime_error("Dataset folder not found or is not a directory: " + folderpath);
@@ -27,11 +22,7 @@ Dataset::Dataset(const std::string& folderpath) {
     trajectory = loadTrajectory(folderpath);
 }
 
-/**
- * @brief Extract odometry poses from trajectory
- * @return Vector of odometry poses
- */
-std::vector<Pose3> Dataset::getOdometryPoses() const {
+std::vector<Pose3> Dataset::getOdometryPoses3() const {
     std::vector<Pose3> poses;
     poses.reserve(trajectory.size());
     for (const auto& point : trajectory) {
@@ -40,11 +31,7 @@ std::vector<Pose3> Dataset::getOdometryPoses() const {
     return poses;
 }
 
-/**
- * @brief Extract ground truth poses from trajectory
- * @return Vector of ground truth poses
- */
-std::vector<Pose3> Dataset::getGroundTruthPoses() const {
+std::vector<Pose3> Dataset::getGroundTruthPoses3() const {
     std::vector<Pose3> poses;
     poses.reserve(trajectory.size());
     for (const auto& point : trajectory) {
@@ -53,10 +40,24 @@ std::vector<Pose3> Dataset::getGroundTruthPoses() const {
     return poses;
 }
 
-/**
- * @brief Extract landmark positions from world data
- * @return Vector of 3D landmark positions
- */
+std::vector<Pose2> Dataset::getOdometryPoses2() const {
+    std::vector<Pose2> poses;
+    poses.reserve(trajectory.size());
+    for (const auto& point : trajectory) {
+        poses.push_back(point.odometry.getPose2());
+    }
+    return poses;
+}
+
+std::vector<Pose2> Dataset::getGroundTruthPoses2() const {
+    std::vector<Pose2> poses;
+    poses.reserve(trajectory.size());
+    for (const auto& point : trajectory) {
+        poses.push_back(point.ground_truth.getPose2());
+    }
+    return poses;
+}
+
 std::vector<Vector3> Dataset::getLandmarkPositions() const {
     std::vector<Vector3> positions;
     positions.reserve(world.size());
@@ -66,10 +67,6 @@ std::vector<Vector3> Dataset::getLandmarkPositions() const {
     return positions;
 }
 
-/**
- * @brief Convert dataset to string representation
- * @return String containing formatted dataset information
- */
 std::string Dataset::toString() const {
     std::ostringstream oss;
     oss << "Dataset:\n"
@@ -181,13 +178,12 @@ static void _add_measurements(std::vector<TrajPoint>& trajectory, const std::str
                 continue;  // Or throw
             }
             try {
-                int current_id = std::stoi(parts[1]);
                 int landmark_id = std::stoi(parts[2]);
                 Scalar image_point_x = std::stod(parts[3]);
                 Scalar image_point_y = std::stod(parts[4]);
 
                 Vector2 image_point(image_point_x, image_point_y);
-                Measurement measurement(seq_number, current_id, landmark_id, image_point);
+                Measurement measurement(seq_number, landmark_id, image_point);
 
                 if (static_cast<size_t>(seq_number) < trajectory.size()) {
                     trajectory[seq_number].measurements.push_back(measurement);

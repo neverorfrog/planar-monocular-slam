@@ -34,6 +34,24 @@ struct Solution {
         return *this;
     }
 
+    std::vector<Vector3> getLandmarkPositions() const {
+        std::vector<Vector3> landmarks;
+        landmarks.reserve(world.size());
+        for(const auto& landmark : world){
+            landmarks.push_back(landmark.position);
+        }
+        return landmarks;
+    }
+
+    std::vector<Pose2> getRobotPoses2() const {
+        std::vector<Pose2> poses;
+        poses.reserve(trajectory.size());
+        for(const auto& pose : trajectory){
+            poses.push_back(pose.getPose2());
+        }
+        return poses;
+    }
+
     std::string toString() const {
         std::ostringstream oss;
         oss << "Solution:\n"

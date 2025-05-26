@@ -104,9 +104,9 @@ inline void triangulate(Solution& solution, const Dataset& dataset) {
 
         std::vector<Pose3> odom_poses;
         for (const auto& measurement : measurements) {
-            int seq_number = measurement.seq_number;
-            assert(seq_number >= 0 && seq_number < dataset.trajectory.size());
-            odom_poses.push_back(dataset.trajectory[seq_number].odometry);
+            int pose_id = measurement.pose_id;
+            assert(pose_id >= 0 && pose_id < dataset.trajectory.size());
+            odom_poses.push_back(dataset.trajectory[pose_id].odometry);
         }
 
         std::pair<Vector3, bool> landmark_pos_guess

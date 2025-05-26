@@ -11,6 +11,7 @@
 #include "pms/math/rotation_matrix.h"
 #include "pms/types/solution.h"
 #include "pms/triangulation.h"
+#include "pms/bundle_adjustment.h"
 
 namespace nb = nanobind;
 using EigenMatrix = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>;
@@ -72,13 +73,12 @@ NB_MODULE(pms, m) {
 
     nb::class_<Measurement>(m, "Measurement")
         .def(nb::init<>())
-        .def(nb::init<const int, const int, const int, const Vector2 &>())
+        .def(nb::init<const int, const int, const Vector2 &>())
         .def(nb::init<const Measurement &>())
         .def(
             "__copy__", [](const Measurement &self) { return new Measurement(self); },
             nb::rv_policy::take_ownership)
-        .def_ro("seq_number", &Measurement::seq_number)
-        .def_ro("point_id", &Measurement::point_id)
+        .def_ro("pose_id", &Measurement::pose_id)
         .def_ro("landmark_id", &Measurement::landmark_id)
         .def_ro("image_point", &Measurement::image_point)
         .def("__str__", &Measurement::toString);
@@ -103,8 +103,8 @@ NB_MODULE(pms, m) {
         .def_ro("camera", &Dataset::camera)
         .def_ro("world", &Dataset::world)
         .def_ro("trajectory", &Dataset::trajectory)
-        .def("getOdometryPoses", &Dataset::getOdometryPoses)
-        .def("getGroundTruthPoses", &Dataset::getGroundTruthPoses)
+        .def("getOdometryPoses3", &Dataset::getOdometryPoses3)
+        .def("getGroundTruthPoses3", &Dataset::getGroundTruthPoses3)
         .def("getLandmarkPositions", &Dataset::getLandmarkPositions)
         .def("__str__", &Dataset::toString);
 
@@ -119,8 +119,16 @@ NB_MODULE(pms, m) {
         .def_ro("errors", &Solution::errors)
         .def("__str__", &Solution::toString);
 
+    nb::class_<State>(m, "State")
+        .def(nb::init<>())
+        .def_ro("robot_poses", &State::robot_poses)
+        .def_ro("landmarks", &State::landmarks);
+
     m.def("triangulate", &triangulate, nb::arg("solution"), nb::arg("dataset"),
           "Triangulate landmarks from the given dataset and update the solution.");
+    
+    m.def("bundleAdjust", &bundleAdjust, nb::arg("solution"), nb::arg("dataset"),
+          "Perform bundle adjustment using pose-landmark and pose-pose constraints.");
 };
 
 }  // namespace python

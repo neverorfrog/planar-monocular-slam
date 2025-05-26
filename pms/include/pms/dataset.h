@@ -69,13 +69,25 @@ public:
      * @brief Extract odometry poses from trajectory
      * @return Vector of odometry poses
      */
-    std::vector<Pose3> getOdometryPoses() const;
+    std::vector<Pose3> getOdometryPoses3() const;
 
     /**
      * @brief Extract ground truth poses from trajectory
      * @return Vector of ground truth poses
      */
-    std::vector<Pose3> getGroundTruthPoses() const;
+    std::vector<Pose3> getGroundTruthPoses3() const;
+
+    /**
+     * @brief Extract odometry poses in 2D (for planar SLAM)
+     * @return Vector of Pose2 objects representing odometry poses
+     */
+    std::vector<Pose2> getOdometryPoses2() const;
+
+    /**
+     * @brief Extract ground truth poses in 2D (for planar SLAM)
+     * @return Vector of Pose2 objects representing ground truth poses
+     */
+    std::vector<Pose2> getGroundTruthPoses2() const;
 
     /**
      * @brief Extract landmark positions from world data

@@ -32,12 +32,12 @@ struct TrajPoint {
 
     /**
      * @brief Constructor with poses
-     * @param point_id Unique identifier for this trajectory point
+     * @param id Unique identifier for this trajectory point
      * @param odom Estimated pose from odometry
      * @param gt Ground truth pose
      */
-    TrajPoint(int point_id, const Pose3& odom, const Pose3& gt)
-        : id(point_id), odometry(odom), ground_truth(gt) {}
+    TrajPoint(int id, const Pose3& odom, const Pose3& gt)
+        : id(id), odometry(odom), ground_truth(gt) {}
 
     /**
      * @brief Copy constructor

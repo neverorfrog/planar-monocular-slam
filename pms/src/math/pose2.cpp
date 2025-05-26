@@ -2,10 +2,9 @@
 
 #include <cmath>
 #include <sstream>
+#include "pms/utils.h"
 
 namespace pms {
-
-Eigen::IOFormat CleanFmt{2, 0, ", ", "\n", "[", "]"};
 
 Pose2::Pose2(const Vector2& translation) : translation(translation) {}
 Pose2::Pose2(const Scalar x, const Scalar y) : translation(x, y) {}
