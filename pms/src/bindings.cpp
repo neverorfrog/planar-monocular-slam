@@ -131,7 +131,8 @@ NB_MODULE(pms, m) {
     nb::class_<BundleAdjuster>(m, "BundleAdjuster")
         .def(nb::init<const std::vector<Landmark> &, const Dataset &, const BundleAdjustmentConfig &>())
         .def("performIteration", &BundleAdjuster::performIteration,
-             "Perform a single iteration of bundle adjustment.");
+             "Perform a single iteration of bundle adjustment.")
+        .def("getState", &BundleAdjuster::getState, "Get the current optimization state.");
 
     m.def("triangulate", &triangulate, nb::arg("dataset"),
           "Triangulate landmarks from the given dataset and return a vector of landmarks.");

@@ -1,14 +1,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from pms import Dataset
+from pms import Pose3
 
-def plot_trajectory(dataset: Dataset) -> None:
+def plot_trajectory(odom_traj: list[Pose3], gt_traj: list[Pose3]) -> None:
     """
     Plot the trajectory of the dataset.
     """
-    odom_traj = dataset.getOdometryPoses3()
-    gt_traj = dataset.getGroundTruthPoses3()
-
     plt.plot(
         [odom.translation[0] for odom in odom_traj],
         [odom.translation[1] for odom in odom_traj],

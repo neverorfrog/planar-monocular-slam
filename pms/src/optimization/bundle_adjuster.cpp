@@ -55,24 +55,29 @@ const BundleAdjuster::OptimizationStats& BundleAdjuster::performIteration() {
         const Pose2& pose = state.robot_poses[meas.pose_id];
         const Landmark& landmark = state.landmarks[meas.landmark_id];
         assert(landmark.valid && "Landmark must be valid");
-        const PoseLandmarkConstraint constraint(pose, landmark.position, meas.image_point);
+        const PoseLandmarkConstraint constraint(pose, landmark.position, meas.image_point, camera);
 
-        // Get the indices for the pose and landmark in the state vector
-        constexpr int pose_dim = Pose2Manifold::getDimension();  // Pose has 3 parameters (x, y, theta)
-        constexpr int lm_dim = 3;                                // Landmark has 3 parameters (x, y, z)
-        int pose_index = meas.pose_id * pose_dim;
-        int lm_index = state.getNumPoses() * pose_dim + getValidLandmarkIndex(meas.landmark_id) * lm_dim;
-        assert(pose_index >= 0 && pose_index + pose_dim <= state.getStateDimension());
-        assert(lm_index >= 0 && lm_index + lm_dim <= state.getStateDimension());
+        if (constraint.is_inlier) {
+            landmark_chi += constraint.chi;
 
-        // Fill the Hessian and gradient vector
-        H.block<pose_dim, pose_dim>(pose_index, pose_index) += constraint.Jr.transpose() * constraint.Jr;
-        H.block<lm_dim, pose_dim>(lm_index, pose_index) += constraint.Jl.transpose() * constraint.Jr;
-        H.block<lm_dim, lm_dim>(lm_index, lm_index) += constraint.Jl.transpose() * constraint.Jl;
-        H.block<pose_dim, lm_dim>(pose_index, lm_index) += constraint.Jr.transpose() * constraint.Jl;
-        b.segment<pose_dim>(pose_index) += constraint.Jr.transpose() * constraint.error;
-        b.segment<lm_dim>(lm_index) += constraint.Jl.transpose() * constraint.error;
-        landmark_chi += constraint.error.transpose() * constraint.error;
+            // Get the indices for the pose and landmark in the state vector
+            constexpr int pose_dim = Pose2Manifold::getDimension();  // Pose has 3 parameters (x, y, theta)
+            constexpr int lm_dim = 3;                                // Landmark has 3 parameters (x, y, z)
+            int pose_index = meas.pose_id * pose_dim;
+            int lm_index = state.getNumPoses() * pose_dim + getValidLandmarkIndex(meas.landmark_id) * lm_dim;
+            assert(pose_index >= 0 && pose_index + pose_dim <= state.getStateDimension());
+            assert(lm_index >= 0 && lm_index + lm_dim <= state.getStateDimension());
+
+            // Fill the Hessian and gradient vector
+            H.block<pose_dim, pose_dim>(pose_index, pose_index) += constraint.Jr.transpose() * constraint.Jr;
+            H.block<lm_dim, pose_dim>(lm_index, pose_index) += constraint.Jl.transpose() * constraint.Jr;
+            H.block<lm_dim, lm_dim>(lm_index, lm_index) += constraint.Jl.transpose() * constraint.Jl;
+            H.block<pose_dim, lm_dim>(pose_index, lm_index) += constraint.Jr.transpose() * constraint.Jl;
+            b.segment<pose_dim>(pose_index) += constraint.Jr.transpose() * constraint.error;
+            b.segment<lm_dim>(lm_index) += constraint.Jl.transpose() * constraint.error;
+        } else {
+            std::cout << "Measurement " << i << " is an outlier with chi: " << constraint.chi << std::endl;
+        }
     }
 
     // Pose-Pose Constraints
@@ -87,8 +92,6 @@ const BundleAdjuster::OptimizationStats& BundleAdjuster::performIteration() {
         constexpr int pose_dim = Pose2Manifold::getDimension();  // Pose has 3 parameters (x, y, theta)
         int pose_i_index = i * pose_dim;
         int pose_j_index = (i + 1) * pose_dim;
-        assert(pose_index >= 0 && pose_index + pose_dim <= state.getStateDimension());
-        assert(lm_index >= 0 && lm_index + lm_dim <= state.getStateDimension());
 
         // Fill the Hessian and gradient vector
         H.block<pose_dim, pose_dim>(pose_i_index, pose_i_index) += constraint.Ji.transpose() * constraint.Ji;
@@ -104,11 +107,20 @@ const BundleAdjuster::OptimizationStats& BundleAdjuster::performIteration() {
     VectorX delta = H.ldlt().solve(-b);
     state.applyIncrement(delta);
 
+    std::cout << "Iteration " << stats.num_iterations + 1 << ": Pose chi = " << pose_chi
+              << ", Landmark chi = " << landmark_chi << std::endl;
+    std::cout << "Hessian condition number: " << H.llt().rcond() << std::endl;
+    if (H.llt().rcond() < 1e-10) {
+        std::cerr << "Warning: Hessian is ill-conditioned, optimization may not converge." << std::endl;
+    }
+    std::cout << "Delta norm: " << delta.norm() << std::endl;
+
     // 3. Update stats with actual values
     stats.num_iterations++;
     stats.pose_chi = pose_chi;
     stats.landmark_chi = landmark_chi;
-    stats.converged = (landmark_chi < config.tolerance && pose_chi < config.tolerance); // TODO: is this correct? And enough?
+    stats.converged = (landmark_chi < config.tolerance
+                       && pose_chi < config.tolerance);  // TODO: is this correct? And enough?
     return stats;
 }
 

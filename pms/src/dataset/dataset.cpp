@@ -305,6 +305,7 @@ Camera Dataset::loadCameraData(const std::string& folderpath_str) {
         Matrix4 transform_matrix;
         read_matrix4x4(transform_matrix);
         cam.pose = Pose3(transform_matrix);
+        cam.inverse_pose = cam.pose.inverse();
 
         // Scalar parameters
         read_param("z_near", cam.z_near);

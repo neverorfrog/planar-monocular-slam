@@ -16,7 +16,8 @@ namespace pms {
  */
 struct Camera {
     Matrix3 camera_matrix;  ///< Camera intrinsic matrix (3x3)
-    Pose3 pose;             ///< Camera pose in world coordinates
+    Pose3 pose;             ///< Camera pose in robot frame
+    Pose3 inverse_pose;     ///< Robot pose in camera frame (inverse of pose)
     Scalar z_near;          ///< Near clipping plane distance
     Scalar z_far;           ///< Far clipping plane distance
     int width;              ///< Image width in pixels
@@ -63,11 +64,12 @@ struct Camera {
     const Eigen::Matrix<Scalar, 3, 4> computeProjectionMatrix(const Pose3& camera_T_world) const;
 
     /**
-     * @brief Project a 3D point into the camera's image plane
+     * @brief Project a 3D point into the camera's frame
      * @param point 3D point in world coordinates
-     * @return 2D pixel coordinates of the projected point in the image
+     * @return 3D point in camera coordinates
      */
-    const Vector2 projectPoint(const Vector3& point, const Eigen::Matrix<Scalar, 3, 4>& projection_matrix) const;
+    const Vector3 pointInCamera(const Vector3& point,
+                                const Eigen::Matrix<Scalar, 3, 4>& projection_matrix) const;
 
     /**
      * @brief Convert camera parameters to string representation

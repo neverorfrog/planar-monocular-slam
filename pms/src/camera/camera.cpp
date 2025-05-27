@@ -23,18 +23,17 @@ const Pose3 Camera::computeWorldToCamera(const Pose3& robot_pose) const {
 }
 
 const Eigen::Matrix<Scalar, 3, 4> Camera::computeProjectionMatrix(const Pose3& camera_T_world) const {
-    Eigen::Matrix<Scalar, 3, 4> projection = Eigen::Matrix<Scalar, 3, 4>::Zero();
-    projection.block(0, 0, 3, 3) = camera_T_world.rotation;
-    projection.block(0, 3, 3, 1) = camera_T_world.translation;
-    projection = camera_matrix * projection;
-    return projection;
+    Eigen::Matrix<Scalar, 3, 4> projection_matrix = Eigen::Matrix<Scalar, 3, 4>::Zero();
+    projection_matrix.block(0, 0, 3, 3) = camera_T_world.rotation;
+    projection_matrix.block(0, 3, 3, 1) = camera_T_world.translation;
+    projection_matrix = camera_matrix * projection_matrix;
+    return projection_matrix;
 }
 
-const Vector2 Camera::projectPoint(const Vector3& point, const Eigen::Matrix<Scalar, 3, 4>& projection_matrix) const {
+const Vector3 Camera::pointInCamera(const Vector3& point, const Eigen::Matrix<Scalar, 3, 4>& projection_matrix) const {
     Vector4 homo_point = Vector4(point.x(), point.y(), point.z(), 1.0);
-    Vector3 point_in_image = projection_matrix * homo_point;
-    Vector2 projection = Vector2(point_in_image.x() / point_in_image.z(), point_in_image.y() / point_in_image.z());
-    return projection;
+    Vector3 point_in_camera = projection_matrix * homo_point;
+    return point_in_camera;
 }
 
 std::string Camera::toString() const {

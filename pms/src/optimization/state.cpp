@@ -26,14 +26,14 @@ void State::applyIncrement(const VectorX& delta) {
     }
 
     for(size_t i = 0; i < robot_poses.size(); ++i) {
-        int perturbation_index = 0; // TODO: Define mapping
+        int perturbation_index = 3 * i;
         Vector3 perturbation = delta.segment(perturbation_index, 3);
         Pose2 perturbed = Pose2Manifold::boxPlus(robot_poses[i], perturbation);
         robot_poses[i] = perturbed;
     }
 
     for(size_t i = 0; i < landmarks.size(); ++i) {
-        int perturbation_index = 0; // TODO: Define mapping
+        int perturbation_index = 3 * (i + robot_poses.size());
         Vector3 perturbation = delta.segment(perturbation_index, 3);
         Vector3 perturbed = landmarks[i].position + perturbation;
         landmarks[i].position = perturbed;

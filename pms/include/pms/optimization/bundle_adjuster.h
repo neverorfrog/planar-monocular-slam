@@ -50,6 +50,7 @@ class BundleAdjuster {
         int num_iterations;   ///< Number of iterations performed
         Scalar pose_chi;      ///< PosePoseConstraint
         Scalar landmark_chi;  ///< PoseLandmarkConstraint
+        Scalar num_inliers;   ///< Number of inliers in the current iteration
         bool converged;       ///< Whether optimization converged
 
         std::string toString() const {
@@ -64,6 +65,14 @@ class BundleAdjuster {
      * @return True if convergence criteria are met, false otherwise
      */
     const OptimizationStats& performIteration();
+
+    /**
+     * @brief Get the current optimization state
+     * @return Current state of the optimization
+     */
+    const State& getState() const {
+        return state;
+    }
 
    private:
     BundleAdjustmentConfig config;          ///< Configuration parameters
