@@ -17,7 +17,7 @@ def initial_guess_error(
     mae_per_coordinate = np.mean(absolute_errors, axis=0)  # Mean per coordinate (x,y,z)
     mae_overall = np.mean(absolute_errors)  # Overall MAE across all coordinates
     print(f"Mean Absolute Error (MAE): {mae_overall:.4f}")
-    print(f"  MAE per coordinate: X={mae_per_coordinate[0]:.4f}, Y={mae_per_coordinate[1]:.4f}, Z={mae_per_coordinate[2]:.4f}")
+    print(f"MAE per coordinate: X={mae_per_coordinate[0]:.4f}, Y={mae_per_coordinate[1]:.4f}, Z={mae_per_coordinate[2]:.4f}")
     
     # 3. Mean Euclidean Distance
     euclidean_distances = np.sqrt(np.sum(differences**2, axis=1))  # Euclidean distance per landmark

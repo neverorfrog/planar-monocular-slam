@@ -29,8 +29,11 @@ def main():
     ba_config = BundleAdjustmentConfig()
     ba = BundleAdjuster(landmarks, dataset, ba_config)
     for iteration in tqdm.tqdm(range(ba_config.max_iterations)):
-        ba.performIteration()
+        stats = ba.performIteration()
+        
+        if(stats.converged):
+            print(f"Converged after {stats.num_iterations} iterations")
+            break
         
         # TODO: Print information about intermadiate optimization results
         # TODO: Plot intermediate results
-        print(ba.getStats())

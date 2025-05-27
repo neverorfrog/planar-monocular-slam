@@ -35,7 +35,7 @@ BundleAdjuster::BundleAdjuster(const std::vector<Landmark>& landmarks, const Dat
            && "Number of valid landmarks does not match the number of landmarks in the state");
 }
 
-bool BundleAdjuster::performIteration() {
+const BundleAdjuster::OptimizationStats& BundleAdjuster::performIteration() {
     Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> H
         = Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic>::Zero(state.getStateDimension(),
                                                                       state.getStateDimension());
@@ -44,10 +44,11 @@ bool BundleAdjuster::performIteration() {
 
     // 1. For each constraint
     // 1.1 Compute projection error and jacobian for each constraint pair
-    // TODO: Compute kernel
+    // TODO: 1.2 Compute kernel
     // 1.3 Put Jacobian into H
 
     // Pose-Landmark Constraints
+    Scalar landmark_chi = 0.0;
     for (size_t i = 0; i < measurements.size(); ++i) {
         // Construct the constraint for the current measurement
         const Measurement& meas = measurements[i];
@@ -71,9 +72,11 @@ bool BundleAdjuster::performIteration() {
         H.block<pose_dim, lm_dim>(pose_index, lm_index) += constraint.Jr.transpose() * constraint.Jl;
         b.segment<pose_dim>(pose_index) += constraint.Jr.transpose() * constraint.error;
         b.segment<lm_dim>(lm_index) += constraint.Jl.transpose() * constraint.error;
+        landmark_chi += constraint.error.transpose() * constraint.error;
     }
 
     // Pose-Pose Constraints
+    Scalar pose_chi = 0.0;
     for (size_t i = 0; i < state.getNumPoses() - 1; ++i) {
         // Construct the constraint for the consecutive poses
         const Pose2& pose_i = state.robot_poses[i];
@@ -94,27 +97,25 @@ bool BundleAdjuster::performIteration() {
         H.block<pose_dim, pose_dim>(pose_j_index, pose_i_index) += constraint.Jj.transpose() * constraint.Ji;
         b.segment<pose_dim>(pose_i_index) += constraint.Ji.transpose() * constraint.error;
         b.segment<pose_dim>(pose_j_index) += constraint.Jj.transpose() * constraint.error;
+        pose_chi += constraint.error.transpose() * constraint.error;
     }
-
-    std::cout << "H AND B DONE" << std::endl;
 
     // 2. Solve the linear system H * delta = -b
     VectorX delta = H.ldlt().solve(-b);
     state.applyIncrement(delta);
 
-    // TODO: Update stats with actual values
+    // 3. Update stats with actual values
     stats.num_iterations++;
-    return false;
+    stats.pose_chi = pose_chi;
+    stats.landmark_chi = landmark_chi;
+    stats.converged = (landmark_chi < config.tolerance && pose_chi < config.tolerance); // TODO: is this correct? And enough?
+    return stats;
 }
 
 int BundleAdjuster::getValidLandmarkIndex(int landmark_id) const {
     return (landmark_id >= 0) ?
                valid_landmarks[landmark_id] :
                throw std::out_of_range("Invalid landmark index: " + std::to_string(landmark_id));
-}
-
-const BundleAdjuster::OptimizationStats& BundleAdjuster::getStats() const {
-    return stats;
 }
 
 }  // namespace pms

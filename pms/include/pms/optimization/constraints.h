@@ -5,9 +5,9 @@
 
 namespace pms {
 struct PoseLandmarkConstraint {
-    Vector2 error;  // Error vector between the observed landmark position and the predicted position
-    Eigen::Matrix<Scalar, 2, 3> Jr;  // Derivative of error with respect to robot increment. As tall as the
-                                     // error function, as wide as the robot state dimension
+    Eigen::Matrix<Scalar, 2, 1> error;  // Error vector between measurement and prediction
+    Eigen::Matrix<Scalar, 2, 3> Jr;     // Derivative of error with respect to robot increment. As tall as the
+                                        // error function, as wide as the robot state dimension
     Eigen::Matrix<Scalar, 2, 3> Jl;  // Derivative of error with respect to landmark increment. As tall as the
                                      // error function, as wide as the landmark state dimension
 
@@ -21,7 +21,7 @@ struct PoseLandmarkConstraint {
 };
 
 struct PosePoseConstraint {
-    Scalar error;                    // Euclidean distance between the two poses
+    Eigen::Matrix<Scalar, 1, 1> error;  // Euclidean distance between the two poses
     Eigen::Matrix<Scalar, 1, 3> Ji;  // Derivative of error with respect to the first pose increment. As tall
                                      // as the error function, as wide as the robot state dimension
     Eigen::Matrix<Scalar, 1, 3> Jj;  // Derivative of error with respect to the second pose increment. As tall

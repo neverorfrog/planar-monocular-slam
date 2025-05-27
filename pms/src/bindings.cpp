@@ -4,8 +4,8 @@
 #include <nanobind/stl/string.h>
 #include <nanobind/stl/vector.h>
 
-#include "pms/camera/triangulation.h"
 #include "pms/camera/camera.h"
+#include "pms/camera/triangulation.h"
 #include "pms/dataset/dataset.h"
 #include "pms/math/definitions.h"
 #include "pms/math/pose2.h"
@@ -123,18 +123,15 @@ NB_MODULE(pms, m) {
 
     nb::class_<BundleAdjuster::OptimizationStats>(m, "OptimizationStats")
         .def_ro("num_iterations", &BundleAdjuster::OptimizationStats::num_iterations)
-        .def_ro("initial_cost", &BundleAdjuster::OptimizationStats::initial_cost)
-        .def_ro("final_cost", &BundleAdjuster::OptimizationStats::final_cost)
-        .def_ro("final_gradient_norm", &BundleAdjuster::OptimizationStats::final_gradient_norm)
+        .def_ro("pose_chi", &BundleAdjuster::OptimizationStats::pose_chi)
+        .def_ro("landmark_chi", &BundleAdjuster::OptimizationStats::landmark_chi)
         .def_ro("converged", &BundleAdjuster::OptimizationStats::converged)
         .def("__str__", &BundleAdjuster::OptimizationStats::toString);
 
     nb::class_<BundleAdjuster>(m, "BundleAdjuster")
         .def(nb::init<const std::vector<Landmark> &, const Dataset &, const BundleAdjustmentConfig &>())
         .def("performIteration", &BundleAdjuster::performIteration,
-             "Perform a single iteration of bundle adjustment.")
-        .def("getStats", &BundleAdjuster::getStats,
-             "Get optimization statistics after running bundle adjustment.");
+             "Perform a single iteration of bundle adjustment.");
 
     m.def("triangulate", &triangulate, nb::arg("dataset"),
           "Triangulate landmarks from the given dataset and return a vector of landmarks.");

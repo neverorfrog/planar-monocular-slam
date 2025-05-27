@@ -23,7 +23,7 @@ inline std::pair<Vector3, bool> triangulateLandmark(const std::vector<Pose3>& od
     Eigen::Matrix<Scalar, Eigen::Dynamic, 4> A = Eigen::Matrix<Scalar, Eigen::Dynamic, 4>::Zero(2 * M, 4);
 
     if (A.rows() < A.cols()) {
-        std::cerr << "Not enough measurements to triangulate landmark." << std::endl;
+        // std::cerr << "Not enough measurements to triangulate landmark." << std::endl;
         return std::make_pair(Vector3::Zero(), false);
     }
 
@@ -48,7 +48,7 @@ inline std::pair<Vector3, bool> triangulateLandmark(const std::vector<Pose3>& od
     Eigen::JacobiSVD<decltype(A)> svd(A, Eigen::ComputeThinV);
     Eigen::Matrix<Scalar, 4, 1> X = svd.matrixV().rightCols(1);
     if (std::abs(X(3)) < 1e-9) {
-        std::cerr << "Triangulation failed: homogeneous coordinate w is near zero." << std::endl;
+        // std::cerr << "Triangulation failed: homogeneous coordinate w is near zero." << std::endl;
         return std::make_pair(Vector3::Zero(), false);
     }
     Vector3 p = X.head<3>() / X(3, 0);  // Dehomogenize
@@ -61,15 +61,15 @@ inline std::pair<Vector3, bool> triangulateLandmark(const std::vector<Pose3>& od
         Vector4 X_cam = camera_T_world_frames.at(i).getHomogen() * p_hom;
         Scalar depth_in_camera = X_cam(2) / X_cam(3);
         if (depth_in_camera <= 0) {
-            std::cerr << "Cheirality check failed: Landmark "
-                      << " behind or on camera plane for view " << i << ". Depth: " << depth_in_camera
-                      << std::endl;
+            // std::cerr << "Cheirality check failed: Landmark "
+                    //   << " behind or on camera plane for view " << i << ". Depth: " << depth_in_camera
+                    //   << std::endl;
             return std::make_pair(Vector3::Zero(), false);
         }
 
         if (depth_in_camera > camera.z_far) {
-            std::cerr << "Cheirality/Range check failed: Landmark beyond z_far for view " << i
-                      << ". Depth: " << depth_in_camera << " > z_far: " << camera.z_far << std::endl;
+            // std::cerr << "Cheirality/Range check failed: Landmark beyond z_far for view " << i
+                    //   << ". Depth: " << depth_in_camera << " > z_far: " << camera.z_far << std::endl;
             return std::make_pair(Vector3::Zero(), false);
         }
     }
@@ -87,7 +87,7 @@ inline std::vector<Landmark> triangulate(const Dataset& dataset) {
     for (size_t i = 0; i < measurements_per_landmark.size(); ++i) {
         const std::vector<Measurement>& measurements = measurements_per_landmark[i];
         if (measurements.size() < 2) {
-            std::cerr << "Not enough measurements to triangulate landmark " << i << "\n\n";
+            // std::cerr << "Not enough measurements to triangulate landmark " << i << "\n\n";
             guessed_landmarks.push_back(Landmark(Vector3::Zero(), i, false));
             continue;
         }

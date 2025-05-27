@@ -43,31 +43,27 @@ class BundleAdjuster {
                             const BundleAdjustmentConfig& config = BundleAdjustmentConfig{});
 
     /**
-     * @brief Main optimization function
-     * @return True if convergence criteria are met, false otherwise
-     */
-    bool performIteration();
-
-    /**
-     * @brief Get the final optimization statistics
+     * @brief Optimization statistics at the end of an iteration
      * @return Structure containing optimization results
      */
     struct OptimizationStats {
-        int num_iterations;          ///< Number of iterations performed
-        Scalar initial_cost;         ///< Initial total cost
-        Scalar final_cost;           ///< Final total cost
-        Scalar final_gradient_norm;  ///< Final gradient norm
-        bool converged;              ///< Whether optimization converged
+        int num_iterations;   ///< Number of iterations performed
+        Scalar pose_chi;      ///< PosePoseConstraint
+        Scalar landmark_chi;  ///< PoseLandmarkConstraint
+        bool converged;       ///< Whether optimization converged
 
         std::string toString() const {
-            return "OptimizationStats{iterations: " + std::to_string(num_iterations) + ", initial_cost: "
-                   + std::to_string(initial_cost) + ", final_cost: " + std::to_string(final_cost)
-                   + ", gradient_norm: " + std::to_string(final_gradient_norm)
+            return "OptimizationStats{iterations: " + std::to_string(num_iterations) + ", pose_chi: "
+                   + std::to_string(pose_chi) + ", landmark_chi: " + std::to_string(landmark_chi)
                    + ", converged: " + (converged ? "true" : "false") + "}";
         }
     };
 
-    const OptimizationStats& getStats() const;
+    /**
+     * @brief Main optimization function
+     * @return True if convergence criteria are met, false otherwise
+     */
+    const OptimizationStats& performIteration();
 
    private:
     BundleAdjustmentConfig config;          ///< Configuration parameters

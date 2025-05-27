@@ -90,8 +90,6 @@ std::vector<Measurement> Dataset::getFlatMeasurements(const std::vector<Landmark
         const auto& measurements = measurements_per_landmark[i];
         if (landmarks[i].valid) {
             flat_measurements.insert(flat_measurements.end(), measurements.begin(), measurements.end());
-        } else {
-            std::cerr << "Skipping measurements for invalid landmark ID " << landmarks[i].id << std::endl;
         }
     }
     return flat_measurements;
