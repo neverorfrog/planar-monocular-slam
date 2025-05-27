@@ -3,10 +3,11 @@
 #include <string>
 #include <vector>
 
-#include "pms/types/camera.h"
-#include "pms/types/landmark.h"
+#include "pms/camera/camera.h"
+#include "pms/dataset/landmark.h"
+#include "pms/dataset/measurement.h"
 #include "pms/math/definitions.h"
-#include "pms/types/trajectory_point.h"
+#include "pms/dataset/trajectory_point.h"
 
 namespace pms {
 
@@ -100,6 +101,14 @@ public:
      * @return Vector of 3D landmark positions
      */
     std::vector<std::vector<Measurement>> getMeasurementsPerLandmark() const;
+
+
+    /**
+     * @brief Get all measurements in a flat vector
+     * @param landmarks Vector of landmarks to filter measurements 
+     * @return Vector of Measurement objects containing all measurements
+     */
+    std::vector<Measurement> getFlatMeasurements(const std::vector<Landmark>& landmarks) const;
 
     /**
      * @brief Convert dataset to string representation

@@ -4,9 +4,9 @@
 #include <iostream>
 
 #include "Eigen/Core"
-#include "pms/dataset.h"
+#include "pms/dataset/dataset.h"
+#include "pms/dataset/landmark.h"
 #include "pms/math/definitions.h"
-#include "pms/types/landmark.h"
 
 namespace pms {
 
@@ -28,18 +28,14 @@ inline std::pair<Vector3, bool> triangulateLandmark(const std::vector<Pose3>& od
     }
 
     std::vector<Pose3> camera_T_world_frames = std::vector<Pose3>(M);
+    Pose3 camera_T_world;
+    Eigen::Matrix<Scalar, 3, 4> projection;
 
     for (int i = 0; i < M; ++i) {
         // Compute projection matrix
-        const Pose3& world_T_robot = odom_poses[i];  // transforms from robot frame to world frame
-        const Pose3& robot_T_camera = camera.pose;   // transforms from camera frame to robot frame
-        const Pose3 world_T_camera = (world_T_robot * robot_T_camera);
-        const Pose3 camera_T_world = world_T_camera.inverse();  // transforms from world frame to camera frame
+        camera_T_world = camera.computeWorldToCamera(odom_poses[i]);
         camera_T_world_frames.at(i) = camera_T_world;
-        Eigen::Matrix<Scalar, 3, 4> projection = Eigen::Matrix<Scalar, 3, 4>::Zero();
-        projection.block(0, 0, 3, 3) = camera_T_world.rotation;
-        projection.block(0, 3, 3, 1) = camera_T_world.translation;
-        projection = camera.camera_matrix * projection;
+        projection = camera.computeProjectionMatrix(camera_T_world);
 
         // Fill coefficient matrix for homogeneus system
         const Measurement& measurement = measurements[i];

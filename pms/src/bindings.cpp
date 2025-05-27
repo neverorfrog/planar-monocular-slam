@@ -4,14 +4,15 @@
 #include <nanobind/stl/string.h>
 #include <nanobind/stl/vector.h>
 
-#include "pms/dataset.h"
+#include "pms/camera/triangulation.h"
+#include "pms/camera/camera.h"
+#include "pms/dataset/dataset.h"
 #include "pms/math/definitions.h"
 #include "pms/math/pose2.h"
 #include "pms/math/pose3.h"
 #include "pms/math/rotation_matrix.h"
 #include "pms/optimization/bundle_adjuster.h"
 #include "pms/optimization/state.h"
-#include "pms/triangulation.h"
 
 namespace nb = nanobind;
 using EigenMatrix = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>;
@@ -130,12 +131,13 @@ NB_MODULE(pms, m) {
 
     nb::class_<BundleAdjuster>(m, "BundleAdjuster")
         .def(nb::init<const std::vector<Landmark> &, const Dataset &, const BundleAdjustmentConfig &>())
-        .def("performIteration", &BundleAdjuster::performIteration, "Perform a single iteration of bundle adjustment.")
-        .def("getStats", &BundleAdjuster::getStats, "Get optimization statistics after running bundle adjustment.");
+        .def("performIteration", &BundleAdjuster::performIteration,
+             "Perform a single iteration of bundle adjustment.")
+        .def("getStats", &BundleAdjuster::getStats,
+             "Get optimization statistics after running bundle adjustment.");
 
     m.def("triangulate", &triangulate, nb::arg("dataset"),
           "Triangulate landmarks from the given dataset and return a vector of landmarks.");
-
 };
 
 }  // namespace python

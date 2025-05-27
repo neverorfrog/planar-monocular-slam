@@ -23,14 +23,14 @@ def main():
     plot_landmarks(gt_positions, guessed_positions, valid_landmarks)
     plot_trajectory(dataset)
     plt.legend()
-    plt.show()
+    # plt.show()
     
     # Bundle Adjustment
-    # ba_config = BundleAdjustmentConfig()
-    # ba = BundleAdjuster(landmarks, dataset, ba_config)
-    # for iteration in tqdm.tqdm(range(ba_config.max_iterations)):
-    #     ba.performIteration()
+    ba_config = BundleAdjustmentConfig()
+    ba = BundleAdjuster(landmarks, dataset, ba_config)
+    for iteration in tqdm.tqdm(range(ba_config.max_iterations)):
+        ba.performIteration()
         
-    #     # TODO: Print information about intermadiate optimization results
-    #     # TODO: Plot intermediate results
-    #     print(ba.getStats())
+        # TODO: Print information about intermadiate optimization results
+        # TODO: Plot intermediate results
+        print(ba.getStats())

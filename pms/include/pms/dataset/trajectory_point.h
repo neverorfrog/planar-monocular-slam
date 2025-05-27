@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "pms/math/pose3.h"
-#include "pms/types/measurement.h"
+#include "pms/dataset/measurement.h"
 
 namespace pms {
 

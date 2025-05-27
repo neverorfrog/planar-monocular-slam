@@ -1,4 +1,4 @@
-#include "pms/dataset.h"
+#include "pms/dataset/dataset.h"
 
 #include <filesystem>
 #include <fstream>
@@ -80,6 +80,21 @@ std::vector<std::vector<Measurement>> Dataset::getMeasurementsPerLandmark() cons
         }
     }
     return measurements_per_landmark;
+}
+
+// TODO: Check if this is correct (how?)
+std::vector<Measurement> Dataset::getFlatMeasurements(const std::vector<Landmark>& landmarks) const {
+    std::vector<std::vector<Measurement>> measurements_per_landmark = getMeasurementsPerLandmark();
+    std::vector<Measurement> flat_measurements;
+    for(size_t i = 0; i < measurements_per_landmark.size(); ++i) {
+        const auto& measurements = measurements_per_landmark[i];
+        if (landmarks[i].valid) {
+            flat_measurements.insert(flat_measurements.end(), measurements.begin(), measurements.end());
+        } else {
+            std::cerr << "Skipping measurements for invalid landmark ID " << landmarks[i].id << std::endl;
+        }
+    }
+    return flat_measurements;
 }
 
 std::string Dataset::toString() const {

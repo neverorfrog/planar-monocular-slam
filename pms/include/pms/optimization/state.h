@@ -2,9 +2,9 @@
 
 #include <vector>
 
+#include "pms/dataset/landmark.h"
 #include "pms/math/definitions.h"
 #include "pms/math/pose2.h"
-#include "pms/types/landmark.h"
 
 namespace pms {
 
@@ -17,8 +17,8 @@ namespace pms {
  */
 class State {
    public:
-    std::vector<Pose2> robot_poses;           ///< Robot poses in SE(2) for planar SLAM
-    std::vector<Landmark> landmarks;          ///< 3D landmarks
+    std::vector<Pose2> robot_poses;   ///< Robot poses in SE(2) for planar SLAM
+    std::vector<Landmark> landmarks;  ///< Landmarks in the environment. Only a subset is valid
 
     /**
      * @brief Default constructor

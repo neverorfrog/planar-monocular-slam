@@ -1,4 +1,6 @@
 #include "pms/optimization/state.h"
+#include <cstddef>
+#include "pms/optimization/manifold.h"
 
 namespace pms {
 
@@ -19,7 +21,23 @@ int State::getStateDimension() const {
 }
 
 void State::applyIncrement(const VectorX& delta) {
-    // TODO: Apply increment using manifold operations (boxPlus)
+    if (delta.size() != getStateDimension()) {
+        throw std::invalid_argument("Delta size does not match state dimension");
+    }
+
+    for(size_t i = 0; i < robot_poses.size(); ++i) {
+        int perturbation_index = 0; // TODO: Define mapping
+        Vector3 perturbation = delta.segment(perturbation_index, 3);
+        Pose2 perturbed = Pose2Manifold::boxPlus(robot_poses[i], perturbation);
+        robot_poses[i] = perturbed;
+    }
+
+    for(size_t i = 0; i < landmarks.size(); ++i) {
+        int perturbation_index = 0; // TODO: Define mapping
+        Vector3 perturbation = delta.segment(perturbation_index, 3);
+        Vector3 perturbed = landmarks[i].position + perturbation;
+        landmarks[i].position = perturbed;
+    }
 }
 
 }  // namespace pms

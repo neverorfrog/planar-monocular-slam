@@ -1,6 +1,5 @@
 #pragma once
 
-#include <sstream>
 #include <string>
 
 #include "pms/math/definitions.h"
@@ -10,7 +9,7 @@ namespace pms {
 
 /**
  * @brief Represents a camera with intrinsic and extrinsic parameters
- * 
+ *
  * This struct encapsulates all the necessary parameters for a camera model including
  * the camera matrix (intrinsic parameters), pose (extrinsic parameters), and
  * viewport dimensions.
@@ -25,7 +24,7 @@ struct Camera {
 
     /**
      * @brief Default constructor
-     * 
+     *
      * Initializes camera with zero values for scalar parameters
      */
     Camera() : z_near(0), z_far(0), width(0), height(0) {}
@@ -47,33 +46,34 @@ struct Camera {
      * @param other Camera object to assign from
      * @return Reference to this camera
      */
-    const Camera& operator=(const Camera& other) {
-        if (this != &other) {
-            camera_matrix = other.camera_matrix;
-            pose = other.pose;
-            z_near = other.z_near;
-            z_far = other.z_far;
-            width = other.width;
-            height = other.height;
-        }
-        return *this;
-    }
+    const Camera& operator=(const Camera& other);
+
+    /**
+     * @brief Compute the camera's world-to-camera transformation
+     * @param robot_pose Pose of the robot in world coordinates
+     * @return Pose3 representing the transformation from world to camera coordinates
+     */
+    const Pose3 computeWorldToCamera(const Pose3& robot_pose) const;
+
+    /**
+     * @brief Compute the projection matrix for the camera
+     * @param camera_T_world Pose of the world in camera coordinates
+     * @return 3x4 projection matrix combining intrinsic and extrinsic parameters
+     */
+    const Eigen::Matrix<Scalar, 3, 4> computeProjectionMatrix(const Pose3& camera_T_world) const;
+
+    /**
+     * @brief Project a 3D point into the camera's image plane
+     * @param point 3D point in world coordinates
+     * @return 2D pixel coordinates of the projected point in the image
+     */
+    const Vector2 projectPoint(const Vector3& point, const Eigen::Matrix<Scalar, 3, 4>& projection_matrix) const;
 
     /**
      * @brief Convert camera parameters to string representation
      * @return String containing formatted camera information
      */
-    std::string toString() const {
-        std::ostringstream oss;
-        oss << "Camera:\n"
-            << "Camera Matrix:\n" << camera_matrix << "\n"
-            << "Pose:\n" << pose.toString() << "\n"
-            << "z_near: " << z_near << "\n"
-            << "z_far: " << z_far << "\n"
-            << "Width: " << width << "\n"
-            << "Height: " << height;
-        return oss.str();
-    }
+    std::string toString() const;
 };
 
 }  // namespace pms

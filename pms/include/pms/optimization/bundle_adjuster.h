@@ -2,9 +2,10 @@
 
 #include <vector>
 
-#include "pms/dataset.h"
+#include "pms/camera/camera.h"
+#include "pms/dataset/dataset.h"
+#include "pms/math/definitions.h"
 #include "pms/optimization/state.h"
-#include "pms/types/camera.h"
 
 namespace pms {
 
@@ -69,11 +70,19 @@ class BundleAdjuster {
     const OptimizationStats& getStats() const;
 
    private:
-    BundleAdjustmentConfig config;                       ///< Configuration parameters
-    OptimizationStats stats;                             ///< Optimization statistics
-    State state;                                         ///< Current optimization state
-    std::vector<std::vector<Measurement>> measurements;  ///< Flat measurement vector
-    Camera camera;                                       ///< Camera parameters for projection
+    BundleAdjustmentConfig config;          ///< Configuration parameters
+    OptimizationStats stats;                ///< Optimization statistics
+    State state;                            ///< Current optimization state
+    std::vector<Measurement> measurements;  ///< Measurement vector
+    Camera camera;                          ///< Camera parameters for projection
+    std::vector<int> valid_landmarks;       ///< Indices of valid landmarks in the state
+
+    /**
+     * @brief Mapping between index in the complete landmark vector and the one with only valid landmarks
+     * @param landmark_id Index of the landmark in the complete vector
+     * @return Mapped index in the valid landmarks vector
+     */
+    int getValidLandmarkIndex(int landmark_id) const;
 };
 
 }  // namespace pms
