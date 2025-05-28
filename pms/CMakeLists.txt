@@ -10,7 +10,7 @@ set(PMS_CPP_LIB pms_cpp)
 set(PMS_BINDING_LIB ${PROJECT_NAME})
 
 add_library(cxx_setup INTERFACE)
-target_compile_options(cxx_setup INTERFACE -Wall -Wpedantic -Wextra)
+target_compile_options(cxx_setup INTERFACE -Wall -Wpedantic -Wextra -fpermissive)
 target_compile_features(cxx_setup INTERFACE cxx_std_20)
 
 if(CMAKE_CXX_COMPILER_LOADED)
@@ -18,13 +18,10 @@ if(CMAKE_CXX_COMPILER_LOADED)
   message(STATUS "Compiler ID: ${CMAKE_CXX_COMPILER_ID}")
   message(STATUS "Compiler Version: ${CMAKE_CXX_COMPILER_VERSION}")
 endif()
+
 # =============================================================================================
 
 # ============================ BUILD OPTIONS ==================================================
-option(BUILD_TESTS "Build tests" OFF)
-option(BUILD_ROS "Build ros package" OFF)
-option(BUILD_DART "Build with DART" OFF)
-
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
   set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
@@ -45,7 +42,7 @@ include(FetchContent)
 FetchContent_Declare(
   eigen
   GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
-  GIT_TAG master
+  GIT_TAG 3.4.0
 )
 FetchContent_MakeAvailable(eigen)
 
@@ -57,6 +54,19 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(nanobind)
 
+# GOOGLE TEST (only if tests are enabled)
+option(BUILD_TESTS "Build the tests" ON)
+if(BUILD_TESTS)
+  FetchContent_Declare(
+    googletest
+    URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
+    DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+  )
+  set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+  FetchContent_MakeAvailable(googletest)
+endif()
+
+# =============================================================================================
 
 # ============================ PLANAR-MONOCULAR-SLAM LIBRARY ==================================
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -77,8 +87,10 @@ set(PMS_CPP_EXTRA_LIBRARIES
 )
 
 target_link_libraries(${PMS_CPP_LIB} PUBLIC ${PMS_CPP_EXTRA_LIBRARIES})
+
 # =============================================================================================
 
+# ============================ PYTHON BINDINGS ===================================================
 find_package(Python 3.8 COMPONENTS Interpreter Development.Module REQUIRED)
 message(STATUS "Python_EXECUTABLE: ${Python_EXECUTABLE}")
 message(STATUS "Python_VERSION: ${Python_VERSION}")
@@ -90,20 +102,29 @@ execute_process(
 )
 
 execute_process(
-    COMMAND ${Python_EXECUTABLE} -c "import sysconfig; print(sysconfig.get_path('purelib'))"
-    OUTPUT_VARIABLE PYTHON_SITE_PACKAGES
-    OUTPUT_STRIP_TRAILING_WHITESPACE
+  COMMAND ${Python_EXECUTABLE} -c "import sysconfig; print(sysconfig.get_path('purelib'))"
+  OUTPUT_VARIABLE PYTHON_SITE_PACKAGES
+  OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
 nanobind_add_module(${PMS_BINDING_LIB} src/bindings.cpp)
-target_include_directories(${PMS_BINDING_LIB} PUBLIC ${eigen_SOURCE_DIR} ${PMS_INCLUDE_DIR})
+target_include_directories(${PMS_BINDING_LIB} PUBLIC ${eigen_SOURCE_DIR})
 target_link_libraries(${PMS_BINDING_LIB} PUBLIC ${PMS_CPP_LIB})
-# find_package(nanoeigenpy CONFIG REQUIRED)
 
+# find_package(nanoeigenpy CONFIG REQUIRED)
 install(
-    TARGETS ${PMS_BINDING_LIB}
-    EXPORT ${PMS_BINDING_LIB}Targets
-    LIBRARY DESTINATION ${PYTHON_SITE_PACKAGES}
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    RUNTIME DESTINATION ${BINDIR}
+  TARGETS ${PMS_BINDING_LIB}
+  EXPORT ${PMS_BINDING_LIB}Targets
+  LIBRARY DESTINATION ${PYTHON_SITE_PACKAGES}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  RUNTIME DESTINATION ${BINDIR}
 )
+
+# =============================================================================================
+
+# ================================= TEST =====================================================
+if(BUILD_TESTS)
+  add_subdirectory(test)
+endif()
+
+# =============================================================================================

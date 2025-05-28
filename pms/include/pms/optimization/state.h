@@ -33,6 +33,19 @@ class State {
     State(const std::vector<Pose2>& initial_poses, const std::vector<Landmark>& initial_landmarks);
 
     /**
+     * @brief Copy constructor
+     * @param other State to copy from
+     */
+    State(const State& other) = default;  ///< Copy constructor
+
+    /**
+     * @brief Copy assignment operator
+     * @param other State to copy from
+     * @return Reference to this state
+     */
+    State& operator=(const State& other) = default;  ///< Copy assignment operator
+
+    /**
      * @brief Get the total number of camera poses
      * @return Number of camera poses in the state
      */
@@ -48,19 +61,7 @@ class State {
      * @brief Get the total dimension of the optimization state
      * @return Total dimension (3 * num_poses + 3 * num_landmarks for planar SLAM)
      */
-    int getStateDimension() const;
-
-    /**
-     * @brief Convert state to parameter vector for optimization
-     * @return Concatenated parameter vector [poses; landmarks]
-     */
-    VectorX toParameterVector() const;
-
-    /**
-     * @brief Update state from parameter vector
-     * @param parameters Optimization parameter vector
-     */
-    void fromParameterVector(const VectorX& parameters);
+    int getDimension() const;
 
     /**
      * @brief Apply parameter update using manifold operations

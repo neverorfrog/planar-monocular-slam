@@ -16,7 +16,7 @@ size_t State::getNumLandmarks() const {
                          [](const Landmark& landmark) { return landmark.valid; });
 }
 
-int State::getStateDimension() const {
+int State::getDimension() const {
     return 3 * getNumPoses() + 3 * getNumLandmarks();
 }
 

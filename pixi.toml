@@ -13,9 +13,15 @@ matplotlib = ">=3.10.1,<4"
 numpy = ">=2.2.4,<3"
 nanobind = "==2.7.0"
 tqdm = ">=4.67.1,<5"
+gtest = ">=1.17.0,<2"
+cmake = ">=3.20"
+make = "*"
 
 [tasks]
 build = 'cd pms && mkdir -p build && cd build && cmake .. && cmake --build . -j$(nproc)'
+build-tests = 'cd pms && mkdir -p build && cd build && cmake .. -DBUILD_TESTS=ON && cmake --build . -j$(nproc)'
+find-tests = { depends-on = ["build-tests"], cmd = 'cd pms/build/test && ctest --output-on-failure' }
+tests = { depends-on = ["build-tests"], cmd = 'cd pms/build/test && ./pms_tests' }
 stubgen-pms = "python -m nanobind.stubgen -m pms"
 
 [package]
