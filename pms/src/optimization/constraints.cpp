@@ -7,13 +7,11 @@ namespace pms {
 
 PoseLandmarkConstraint::PoseLandmarkConstraint(const Pose2& Xr, const Vector3& Xl, const Vector2& z,
                                                const Camera& camera) {
-    Jr = Eigen::Matrix<Scalar, 2, 3>::Zero();
-    Jl = Eigen::Matrix<Scalar, 2, 3>::Zero();
-
+    // Compute predicted measurement
     Pose3 camera_T_world = camera.computeWorldToCamera(Pose3(Xr));
     Eigen::Matrix<Scalar, 3, 4> projection_matrix = camera.computeProjectionMatrix(camera_T_world);
     Vector3 point_in_camera = camera.pointInCamera(Xl, projection_matrix);
-    Vector2 h = Vector2(point_in_camera.x() / point_in_camera.z(), point_in_camera.y() / point_in_camera.z());
+    h = Vector2(point_in_camera.x() / point_in_camera.z(), point_in_camera.y() / point_in_camera.z());
 
     // Error
     error = z - h;
@@ -22,12 +20,13 @@ PoseLandmarkConstraint::PoseLandmarkConstraint(const Pose2& Xr, const Vector3& X
     std::cout << "Prediction: " << h.transpose() << std::endl;
     std::cout << "Chi: " << chi << std::endl;
 
-    if(chi > max_chi) {
+    // Robust estimation
+    if (chi > max_chi) {
         is_inlier = false;
         return;
     }
 
-    // Jacobian with respect to robot 
+    // Jacobian with respect to robot
     Eigen::Matrix<Scalar, 2, 3> J_proj = Eigen::Matrix<Scalar, 2, 3>::Zero();
     J_proj(0, 0) = 1.0 / point_in_camera.z();
     J_proj(1, 1) = 1.0 / point_in_camera.z();
@@ -44,7 +43,7 @@ PoseLandmarkConstraint::PoseLandmarkConstraint(const Pose2& Xr, const Vector3& X
     Jl = J_proj * camera.camera_matrix * camera_T_world.rotation;
 }
 
-Eigen::Matrix<Scalar, 3,3> PoseLandmarkConstraint::computeRotationDerivativeZ(Scalar theta) const {
+Eigen::Matrix<Scalar, 3, 3> PoseLandmarkConstraint::computeRotationDerivativeZ(Scalar theta) const {
     Eigen::Matrix<Scalar, 3, 3> J_rot = Eigen::Matrix<Scalar, 3, 3>::Zero();
     J_rot(0, 0) = -sin(theta);
     J_rot(0, 1) = cos(theta);

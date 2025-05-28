@@ -12,7 +12,7 @@ struct PoseLandmarkConstraint {
     Eigen::Matrix<Scalar, 2, 3> Jl;  // Derivative of error with respect to landmark increment. As tall as the
                                      // error function, as wide as the landmark state dimension
     Scalar chi = 0.0;                // Chi-squared value for this constraint, used for robust estimation
-    Scalar max_chi = 1e2;   // Maximum chi-squared value for this constraint, used for robust estimation
+    Scalar max_chi = 1e4;   // Maximum chi-squared value for this constraint, used for robust estimation
     bool is_inlier = true;  // Whether this constraint is considered an inlier based on the chi-squared value
     Vector2 h;              // Predicted measurement in the image plane
 

@@ -1,5 +1,8 @@
 #include "pms/optimization/state.h"
 #include <cstddef>
+#include <cassert>
+#include <cstdio>
+#include <cstdlib>
 #include "pms/optimization/manifold.h"
 
 namespace pms {
@@ -21,13 +24,15 @@ int State::getDimension() const {
 }
 
 void State::applyIncrement(const VectorX& delta) {
-    if (delta.size() != getStateDimension()) {
+    if (delta.size() != getDimension()) {
         throw std::invalid_argument("Delta size does not match state dimension");
     }
 
+    // Apply pose increments
+    constexpr int pose_dim = 3;  // SE(2) has 3 DOF
     for(size_t i = 0; i < robot_poses.size(); ++i) {
-        int perturbation_index = 3 * i;
-        Vector3 perturbation = delta.segment(perturbation_index, 3);
+        int perturbation_index = i * pose_dim;
+        Vector3 perturbation = delta.segment(perturbation_index, pose_dim);
         Pose2 perturbed = Pose2Manifold::boxPlus(robot_poses[i], perturbation);
         robot_poses[i] = perturbed;
     }
