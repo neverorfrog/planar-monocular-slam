@@ -37,6 +37,7 @@ struct Camera {
     Camera(const Camera& other)
         : camera_matrix(other.camera_matrix),
           pose(other.pose),
+          inverse_pose(other.inverse_pose),
           z_near(other.z_near),
           z_far(other.z_far),
           width(other.width),
@@ -70,6 +71,13 @@ struct Camera {
      */
     const Vector3 pointInCamera(const Vector3& point,
                                 const Eigen::Matrix<Scalar, 3, 4>& projection_matrix) const;
+
+    /**
+     * @brief Project a 3D point onto the image plane
+     * @param point 3D point in world coordinates
+     * @return 2D point in image coordinates and a validity flag
+     */
+    const std::pair<Vector2, bool> projectToImage(const Vector3& point) const;
 
     /**
      * @brief Convert camera parameters to string representation

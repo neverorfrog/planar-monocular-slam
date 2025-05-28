@@ -8,6 +8,7 @@ const Camera& Camera::operator=(const Camera& other) {
     if (this != &other) {
         camera_matrix = other.camera_matrix;
         pose = other.pose;
+        inverse_pose = other.inverse_pose;
         z_near = other.z_near;
         z_far = other.z_far;
         width = other.width;
@@ -35,6 +36,22 @@ const Vector3 Camera::pointInCamera(const Vector3& point, const Eigen::Matrix<Sc
     Vector3 point_in_camera = projection_matrix * homo_point;
     return point_in_camera;
 }
+
+const std::pair<Vector2, bool> Camera::projectToImage(const Vector3& point) const {
+    Vector2 h = Vector2(point.x() / point.z(), point.y() / point.z());
+    bool is_valid = true;
+
+    // Check if behind camera or too far
+    if (point.z() < z_near || point.z() > z_far)
+        is_valid = false;
+
+    // Check if in fov
+    if (h.x() > width || h.x() < 0 || h.y() > height || h.y() < 0)
+        is_valid = false;
+
+    return std::make_pair(h, is_valid);
+}
+
 
 std::string Camera::toString() const {
     std::ostringstream oss;

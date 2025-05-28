@@ -23,19 +23,19 @@ def main():
     odom_traj = dataset.getOdometryPoses3()
     gt_traj = dataset.getGroundTruthPoses3()
     # plot_landmarks(gt_positions, guessed_positions, valid_landmarks)
-    plot_trajectory(odom_traj, gt_traj)
+    # plot_trajectory(odom_traj, gt_traj)
     # plt.legend()
     # plt.show()
     
     # Bundle Adjustment
     ba_config = BundleAdjustmentConfig()
-    ba_config.max_iterations = 10
+    ba_config.max_iterations = 20
     ba = BundleAdjuster(landmarks, dataset, ba_config)
     for iteration in tqdm.tqdm(range(ba_config.max_iterations)):
         stats = ba.performIteration()
         
         print(f"Iteration {stats.num_iterations}")
-        print(f"Error: {stats.landmark_chi}")
+        print(f"Landmark error: {stats.landmark_chi}")
         
         if(stats.converged):
             print(f"Converged after {stats.num_iterations} iterations")
@@ -43,8 +43,8 @@ def main():
         
         state = ba.getState()
         
-        odom_traj = state.robot_poses
-        plot_trajectory(odom_traj, gt_traj)
+        traj = state.robot_poses
+        plot_trajectory(traj, odom_traj, gt_traj)
         plt.legend()
         plt.show()
         # exit(0)

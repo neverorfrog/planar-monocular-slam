@@ -75,19 +75,12 @@ class BundleAdjuster {
     }
 
    private:
-    BundleAdjustmentConfig config;          ///< Configuration parameters
-    OptimizationStats stats;                ///< Optimization statistics
-    State state;                            ///< Current optimization state
-    std::vector<Measurement> measurements;  ///< Measurement vector
-    Camera camera;                          ///< Camera parameters for projection
-    std::vector<int> valid_landmarks;       ///< Indices of valid landmarks in the state
+    BundleAdjustmentConfig config;     ///< Configuration parameters
+    OptimizationStats stats;           ///< Optimization statistics
+    State state;                       ///< Current optimization state
+    Camera camera;                     ///< Camera parameters for projection
+    Dataset dataset;                   ///< Dataset containing measurements and trajectory
 
-    /**
-     * @brief Mapping between index in the complete landmark vector and the one with only valid landmarks
-     * @param landmark_id Index of the landmark in the complete vector
-     * @return Mapped index in the valid landmarks vector
-     */
-    int getValidLandmarkIndex(int landmark_id) const;
 };
 
 }  // namespace pms

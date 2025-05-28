@@ -3,6 +3,7 @@
 #include <cassert>
 #include <cstdio>
 #include <cstdlib>
+#include <iostream>
 #include "pms/optimization/manifold.h"
 
 namespace pms {
@@ -15,8 +16,7 @@ size_t State::getNumPoses() const {
 }
 
 size_t State::getNumLandmarks() const {
-    return std::count_if(landmarks.begin(), landmarks.end(),
-                         [](const Landmark& landmark) { return landmark.valid; });
+    return landmarks.size();
 }
 
 int State::getDimension() const {

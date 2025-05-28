@@ -2,10 +2,17 @@ import numpy as np
 import matplotlib.pyplot as plt
 from pms import Pose3
 
-def plot_trajectory(odom_traj: list[Pose3], gt_traj: list[Pose3]) -> None:
+def plot_trajectory(traj: list[Pose3], odom_traj: list[Pose3], gt_traj: list[Pose3]) -> None:
     """
     Plot the trajectory of the dataset.
     """
+    plt.plot(
+        [pose.translation[0] for pose in traj],
+        [pose.translation[1] for pose in traj],
+        "bo",
+        label="estimated trajectory",
+    )
+    
     plt.plot(
         [odom.translation[0] for odom in odom_traj],
         [odom.translation[1] for odom in odom_traj],
