@@ -149,12 +149,17 @@ NB_MODULE(pms, m) {
              "Triangulate all landmarks from grouped measurements.")
         .def("triangulateFromDataset", &Triangulator::triangulateFromDataset,
              "Triangulate all landmarks in a dataset.")
+        .def("triangulateRansac", &Triangulator::triangulateRansac,
+             "Triangulate landmarks using robust consecutive frame approach with outlier filtering.")
         .def("getCamera", &Triangulator::getCamera, nb::rv_policy::reference_internal)
         .def("getConfig", &Triangulator::getConfig, nb::rv_policy::reference_internal)
         .def("setConfig", &Triangulator::setConfig);
 
     m.def("triangulate", &triangulate, nb::arg("dataset"),
           "Triangulate landmarks from the given dataset and return a vector of landmarks.");
+
+    m.def("triangulateRansac", &triangulateRansac, nb::arg("dataset"),
+          "Triangulate landmarks using robust consecutive frame approach with outlier filtering and averaging.");
 };
 
 }  // namespace python

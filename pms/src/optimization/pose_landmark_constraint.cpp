@@ -1,7 +1,5 @@
 #include "pms/optimization/pose_landmark_constraint.h"
 
-#include <iostream>
-
 namespace pms {
 
 PoseLandmarkConstraint::PoseLandmarkConstraint(const Pose2& Xr, const Vector3& Xl, const Vector2& z,
@@ -20,9 +18,6 @@ PoseLandmarkConstraint::PoseLandmarkConstraint(const Pose2& Xr, const Vector3& X
     // Error
     error = h - z;
     chi = error.squaredNorm();
-    std::cout << "Measurement: " << z.transpose() << std::endl;
-    std::cout << "Prediction: " << h.transpose() << std::endl;
-    std::cout << "Chi: " << chi << std::endl;
 
     // Robust estimation
     if (chi > max_chi) {
@@ -31,9 +26,6 @@ PoseLandmarkConstraint::PoseLandmarkConstraint(const Pose2& Xr, const Vector3& X
         chi = max_chi;
     }
 
-    std::cout << "Landmark position: " << Xl << std::endl;
-    std::cout << "R_t: \n" << camera_T_world.rotation.matrix() << std::endl;
-
     // Jacobian with respect to robot
     Eigen::Matrix<Scalar, 2, 3> J_proj = Eigen::Matrix<Scalar, 2, 3>::Zero();
     J_proj(0, 0) = 1.0 / point_in_camera.z();
@@ -41,16 +33,12 @@ PoseLandmarkConstraint::PoseLandmarkConstraint(const Pose2& Xr, const Vector3& X
     J_proj(0, 2) = -point_in_camera.x() / (point_in_camera.z() * point_in_camera.z());
     J_proj(1, 2) = -point_in_camera.y() / (point_in_camera.z() * point_in_camera.z());
     Eigen::Matrix<Scalar, 3, 3> J_icp_r = Eigen::Matrix<Scalar, 3, 3>::Zero();
-    J_icp_r.col(0) = -camera_T_world.rotation * Vector3(1, 0, 0);
-    J_icp_r.col(1) = -camera_T_world.rotation * Vector3(0, 1, 0);
-
+    J_icp_r.col(0) = -camera_T_world.rotation.col(0);
+    J_icp_r.col(1) = -camera_T_world.rotation.col(1);
 
     Vector3 robot_to_landmark = Xl - Pose3(Xr).translation;
     Matrix3 rot_derivative = camera.inverse_pose.rotation.matrix() * computeRotationDerivativeZ(Xr.rotation);
     J_icp_r.block<3, 1>(0, 2) = rot_derivative * robot_to_landmark;
-
-    std::cout << "J_proj: \n" << J_proj << std::endl;
-    std::cout << "J_icp_r: \n" << J_icp_r << std::endl;
 
     Jr = J_proj * camera.camera_matrix * J_icp_r;
     Jl = J_proj * camera.camera_matrix * camera_T_world.rotation;

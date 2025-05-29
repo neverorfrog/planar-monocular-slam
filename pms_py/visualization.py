@@ -6,13 +6,7 @@ def plot_trajectory(traj: list[Pose3], odom_traj: list[Pose3], gt_traj: list[Pos
     """
     Plot the trajectory of the dataset.
     """
-    plt.plot(
-        [pose.translation[0] for pose in traj],
-        [pose.translation[1] for pose in traj],
-        "bo",
-        label="estimated trajectory",
-    )
-    
+
     plt.plot(
         [odom.translation[0] for odom in odom_traj],
         [odom.translation[1] for odom in odom_traj],
@@ -24,6 +18,13 @@ def plot_trajectory(traj: list[Pose3], odom_traj: list[Pose3], gt_traj: list[Pos
         [gt.translation[1] for gt in gt_traj],
         "go",
         label="ground truth",
+    )
+    
+    plt.plot(
+        [pose.translation[0] for pose in traj],
+        [pose.translation[1] for pose in traj],
+        "bo",
+        label="estimated trajectory",
     )
 
 def plot_landmarks(gt: np.ndarray, guess: np.ndarray, successes: np.ndarray, with_error: bool = False) -> None:

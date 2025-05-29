@@ -18,7 +18,7 @@ const Camera& Camera::operator=(const Camera& other) {
 }
 
 const Pose3 Camera::computeWorldToCamera(const Pose3& robot_pose) const {
-    const Pose3 world_T_camera = (robot_pose * pose); // transforms from camera frame to world frame
+    const Pose3 world_T_camera = (robot_pose * this->pose); // transforms from camera frame to world frame
     const Pose3 camera_T_world = world_T_camera.inverse();  // transforms from world frame to camera frame
     return camera_T_world;
 }
