@@ -149,7 +149,6 @@ private:
                                    const Pose3& camera_T_world) const;
 };
 
-// Legacy functions for backward compatibility
 /**
  * @deprecated Use Triangulator class instead
  * @brief Triangulate the 3D position of a landmark given its 2D measurements
