@@ -2,5 +2,5 @@
 
 - [x] Data preprocessing
 - [x] Triangulation for initial guess
-- [ ] Bundle Adjustment
+- [x] Bundle Adjustment
 - [ ] Triangulation refinement with RANSAC?

@@ -134,6 +134,25 @@ NB_MODULE(pms, m) {
              "Perform a single iteration of bundle adjustment.")
         .def("getState", &BundleAdjuster::getState, "Get the current optimization state.");
 
+    nb::class_<TriangulationConfig>(m, "TriangulationConfig")
+        .def(nb::init<>())
+        .def_rw("homogeneous_threshold", &TriangulationConfig::homogeneous_threshold)
+        .def_rw("enable_cheirality_check", &TriangulationConfig::enable_cheirality_check)
+        .def_rw("min_observations", &TriangulationConfig::min_observations);
+
+    nb::class_<Triangulator>(m, "Triangulator")
+        .def(nb::init<const Camera &>())
+        .def(nb::init<const Camera &, const TriangulationConfig &>())
+        .def("triangulateLandmark", &Triangulator::triangulateLandmark,
+             "Triangulate a single landmark from multiple observations.")
+        .def("triangulateAll", &Triangulator::triangulateAll,
+             "Triangulate all landmarks from grouped measurements.")
+        .def("triangulateFromDataset", &Triangulator::triangulateFromDataset,
+             "Triangulate all landmarks in a dataset.")
+        .def("getCamera", &Triangulator::getCamera, nb::rv_policy::reference_internal)
+        .def("getConfig", &Triangulator::getConfig, nb::rv_policy::reference_internal)
+        .def("setConfig", &Triangulator::setConfig);
+
     m.def("triangulate", &triangulate, nb::arg("dataset"),
           "Triangulate landmarks from the given dataset and return a vector of landmarks.");
 };

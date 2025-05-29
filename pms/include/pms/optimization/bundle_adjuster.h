@@ -75,12 +75,12 @@ class BundleAdjuster {
     }
 
    private:
-    BundleAdjustmentConfig config;     ///< Configuration parameters
-    OptimizationStats stats;           ///< Optimization statistics
-    State state;                       ///< Current optimization state
-    Camera camera;                     ///< Camera parameters for projection
-    Dataset dataset;                   ///< Dataset containing measurements and trajectory
-
+    BundleAdjustmentConfig config;         ///< Configuration parameters
+    OptimizationStats stats;               ///< Optimization statistics
+    State state;                           ///< Current optimization state
+    Camera camera;                         ///< Camera parameters for projection
+    Dataset dataset;                       ///< Dataset containing measurements and trajectory
+    std::vector<Pose2> pose_measurements;  ///< Pose measurements from odometry
 };
 
 }  // namespace pms

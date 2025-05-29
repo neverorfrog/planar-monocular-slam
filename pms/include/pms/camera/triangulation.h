@@ -1,93 +1,120 @@
 #pragma once
 
-#include <cassert>
+#include <utility>
+#include <vector>
 
+#include "pms/camera/camera.h"
 #include "pms/dataset/dataset.h"
 #include "pms/dataset/landmark.h"
+#include "pms/dataset/measurement.h"
 #include "pms/math/definitions.h"
 
 namespace pms {
 
-inline std::pair<Vector3, bool> triangulateLandmark(const std::vector<Pose3>& odom_poses,
-                                                    const std::vector<Measurement>& measurements,
-                                                    const Camera& camera) {
+/**
+ * @brief Configuration parameters for triangulation
+ */
+struct TriangulationConfig {
+    Scalar homogeneous_threshold = 1e-10;  ///< Threshold for homogeneous coordinate validity
+    bool enable_cheirality_check = true;   ///< Enable cheirality check (point in front of camera)
+    size_t min_observations = 2;           ///< Minimum number of observations required for triangulation
+
+    TriangulationConfig() = default;
+};
+
+/**
+ * @brief Triangulator class for 3D landmark triangulation using Direct Linear Transform (DLT)
+ *
+ * This class encapsulates the triangulation functionality, implementing the DLT algorithm
+ * to estimate 3D landmark positions from multiple 2D observations across different camera poses.
+ * It provides both single landmark and batch triangulation methods.
+ */
+class Triangulator {
+   private:
+    Camera camera_;               ///< Camera parameters
+    TriangulationConfig config_;  ///< Triangulation configuration
+
+   public:
     /**
-     * Triangulate the 3D position of a landmark given its 2D measurements,
-     * each associated with a robot pose, and the camera intrinsics. This
-     * function should return the guessed 3D position of the landmark.
+     * @brief Constructor with camera parameters
+     * @param camera Camera parameters including intrinsics and extrinsics
+     * @param config Triangulation configuration (optional)
      */
+    explicit Triangulator(const Camera& camera, const TriangulationConfig& config = TriangulationConfig());
 
-    const int M = odom_poses.size();
-    Eigen::Matrix<Scalar, Eigen::Dynamic, 4> A = Eigen::Matrix<Scalar, Eigen::Dynamic, 4>::Zero(2 * M, 4);
+    /**
+     * @brief Triangulate the 3D position of a single landmark
+     *
+     * Uses the Direct Linear Transform (DLT) algorithm to estimate the 3D position
+     * of a landmark given its 2D measurements from multiple camera poses.
+     *
+     * @param odom_poses Vector of robot poses for each measurement
+     * @param measurements Vector of 2D measurements of the landmark
+     * @return Pair containing the triangulated 3D position and success flag
+     */
+    std::pair<Vector3, bool> triangulateLandmark(const std::vector<Pose3>& odom_poses,
+                                                 const std::vector<Measurement>& measurements) const;
 
-    std::vector<Pose3> camera_T_world_frames = std::vector<Pose3>(M);
-    Pose3 camera_T_world;
-    Eigen::Matrix<Scalar, 3, 4> projection;
+    /**
+     * @brief Triangulate all landmarks from measurements grouped by landmark ID
+     *
+     * @param measurements_per_landmark Vector of measurement vectors, indexed by landmark ID
+     * @param odom_poses All robot poses from the trajectory
+     * @return Vector of triangulated landmarks with their positions and validity flags
+     */
+    std::vector<Landmark>
+    triangulateAll(const std::vector<std::vector<Measurement>>& measurements_per_landmark,
+                   const std::vector<Pose3>& odom_poses) const;
 
-    for (int i = 0; i < M; ++i) {
-        // Compute projection matrix
-        camera_T_world = camera.computeWorldToCamera(odom_poses[i]);
-        camera_T_world_frames.at(i) = camera_T_world;
-        projection = camera.computeProjectionMatrix(camera_T_world);
+    /**
+     * @brief Triangulate all landmarks in a dataset
+     *
+     * Convenience method that extracts measurements per landmark from the dataset
+     * and triangulates all landmarks.
+     *
+     * @param dataset The dataset containing measurements and trajectory
+     * @return Vector of triangulated landmarks with their positions and validity flags
+     */
+    std::vector<Landmark> triangulateFromDataset(const Dataset& dataset) const;
 
-        // Fill coefficient matrix for homogeneus system
-        const Measurement& measurement = measurements[i];
-        Scalar u = measurement.image_point(0);
-        Scalar v = measurement.image_point(1);
-        A.row(i * 2) = v * projection.row(2) - projection.row(1);
-        A.row(i * 2 + 1) = projection.row(0) - u * projection.row(2);
+    /**
+     * @brief Get the camera parameters
+     * @return Reference to the camera parameters
+     */
+    const Camera& getCamera() const {
+        return camera_;
     }
 
-    Eigen::JacobiSVD<decltype(A)> svd(A, Eigen::ComputeThinV);
-    Eigen::Matrix<Scalar, 4, 1> X = svd.matrixV().rightCols(1);
-    if (std::abs(X(3)) < 1e-7) {
-        // std::cerr << "Triangulation failed: homogeneous coordinate w is near zero." << std::endl;
-        return std::make_pair(Vector3::Zero(), false);
-    }
-    Vector3 p = X.head<3>() / X(3, 0);  // Dehomogenize
-
-    // Cheirality check
-    for (int i = 0; i < M; ++i) {
-        Eigen::Matrix<Scalar, 4, 1> p_hom;
-        p_hom.head<3>() = p;
-        p_hom(3) = 1.0;
-        Vector4 X_cam = camera_T_world_frames.at(i).getHomogen() * p_hom;
-        Scalar depth_in_camera = X_cam(2) / X_cam(3);
-        if (depth_in_camera <= 0 || depth_in_camera > camera.z_far) {
-            return std::make_pair(Vector3::Zero(), false);
-        }
+    /**
+     * @brief Get the triangulation configuration
+     * @return Reference to the configuration
+     */
+    const TriangulationConfig& getConfig() const {
+        return config_;
     }
 
-    return std::make_pair(p, true);
-}
-
-inline std::vector<Landmark> triangulate(const Dataset& dataset) {
-    std::vector<Landmark> guessed_landmarks;
-
-    // TODO: Should i consider only meas where the landmark is also visible in the next or previous frame?
-    std::vector<std::vector<Measurement>> measurements_per_landmark = dataset.getMeasurementsPerLandmark();
-
-    // Get odometry poses for each measurement in each landmark and triangulate
-    for (size_t i = 0; i < measurements_per_landmark.size(); ++i) {
-        const std::vector<Measurement>& measurements = measurements_per_landmark[i];
-        if (measurements.size() < 2) {
-            guessed_landmarks.push_back(Landmark(Vector3::Zero(), i, false));
-            continue;
-        }
-
-        std::vector<Pose3> odom_poses;
-        for (const auto& measurement : measurements) {
-            int pose_id = measurement.pose_id;
-            assert(pose_id >= 0 && pose_id < dataset.trajectory.size());
-            odom_poses.push_back(dataset.trajectory[pose_id].odometry);
-        }
-
-        std::pair<Vector3, bool> landmark_pos_guess
-            = triangulateLandmark(odom_poses, measurements, dataset.camera);
-        guessed_landmarks.push_back(Landmark(landmark_pos_guess.first, i, landmark_pos_guess.second));
+    /**
+     * @brief Update the triangulation configuration
+     * @param config New configuration parameters
+     */
+    void setConfig(const TriangulationConfig& config) {
+        config_ = config;
     }
+};
 
-    return guessed_landmarks;
-}
+// Legacy functions for backward compatibility
+/**
+ * @deprecated Use Triangulator class instead
+ * @brief Triangulate the 3D position of a landmark given its 2D measurements
+ */
+std::pair<Vector3, bool> triangulateLandmark(const std::vector<Pose3>& odom_poses,
+                                             const std::vector<Measurement>& measurements,
+                                             const Camera& camera);
+
+/**
+ * @deprecated Use Triangulator class instead
+ * @brief Triangulate all landmarks in the dataset using the Direct Linear Transform (DLT) algorithm
+ */
+std::vector<Landmark> triangulate(const Dataset& dataset);
 
 }  // namespace pms
