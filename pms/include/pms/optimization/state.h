@@ -68,6 +68,12 @@ class State {
      * @param delta_parameters Parameter space perturbation
      */
     void applyIncrement(const VectorX& delta);
+
+    /**
+     * @brief Get the current landmark positions
+     * @return Vector of Vector3 objects representing the landmark positions
+     */
+    std::vector<Vector3> getLandmarkPositions() const;
 };
 
 }  // namespace pms

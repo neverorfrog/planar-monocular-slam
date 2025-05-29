@@ -34,6 +34,11 @@ NB_MODULE(pms, m) {
             "__copy__", [](const Pose2 &self) { return new Pose2(self); }, nb::rv_policy::take_ownership)
         .def("rotation", [](const Pose2 &pose) { return static_cast<double>(pose.rotation); })
         .def_ro("translation", &Pose2::translation)
+        .def("__mul__", [](const Pose2 &pose, const Vector2 &vec) { return pose * vec; })
+        .def("__mul__", [](const Pose2 &pose, const Pose2 &other) { return pose * other; })
+        .def("__add__", [](const Pose2 &p1, const Pose2 &p2) { return p1 + p2; })
+        .def("__sub__", [](const Pose2 &p1, const Pose2 &p2) { return p1 - p2; })
+        .def("inverse", &Pose2::inverse)
         .def("__str__", &Pose2::toString);
 
     nb::class_<Pose3>(m, "Pose3")
@@ -42,7 +47,11 @@ NB_MODULE(pms, m) {
         .def(
             "__copy__", [](const Pose3 &self) { return new Pose3(self); }, nb::rv_policy::take_ownership)
         .def("getVector", &Pose3::getVector)
+        .def("getPose2", &Pose3::getPose2)
+        .def("inverse", &Pose3::inverse)
         .def("__add__", [](const Pose3 &p1, const Pose3 &p2) { return p1 + p2; })
+        .def("__mul__", [](const Pose3 &pose, const Vector3 &vec) { return pose * vec; })
+        .def("__mul__", [](const Pose3 &pose, const Pose3 &other) { return pose * other; })
         .def("__str__", &Pose3::toString)
         .def_rw("rotation", &Pose3::rotation)
         .def_rw("translation", &Pose3::translation);
@@ -112,7 +121,9 @@ NB_MODULE(pms, m) {
     nb::class_<State>(m, "State")
         .def(nb::init<>())
         .def_ro("robot_poses", &State::robot_poses)
-        .def_ro("landmarks", &State::landmarks);
+        .def_ro("landmarks", &State::landmarks)
+        .def("getLandmarkPositions", &State::getLandmarkPositions,
+             "Get the positions of all landmarks in the current state.");
 
     nb::class_<BundleAdjustmentConfig>(m, "BundleAdjustmentConfig")
         .def(nb::init<>())

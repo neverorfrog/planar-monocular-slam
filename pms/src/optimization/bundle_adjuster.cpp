@@ -58,12 +58,17 @@ const BundleAdjuster::OptimizationStats& BundleAdjuster::performIteration() {
 
                 // Fill the Hessian and gradient vector
                 H.block<pose_dim, pose_dim>(pose_index, pose_index)
-                    += constraint.Jr.transpose() * constraint.Jr;
-                H.block<lm_dim, pose_dim>(lm_index, pose_index) += constraint.Jl.transpose() * constraint.Jr;
-                H.block<lm_dim, lm_dim>(lm_index, lm_index) += constraint.Jl.transpose() * constraint.Jl;
-                H.block<pose_dim, lm_dim>(pose_index, lm_index) += constraint.Jr.transpose() * constraint.Jl;
-                b.segment<pose_dim>(pose_index) += constraint.Jr.transpose() * constraint.error;
-                b.segment<lm_dim>(lm_index) += constraint.Jl.transpose() * constraint.error;
+                    += constraint.Jr.transpose() * constraint.omega * constraint.Jr;
+                H.block<lm_dim, pose_dim>(lm_index, pose_index)
+                    += constraint.Jl.transpose() * constraint.omega * constraint.Jr;
+                H.block<lm_dim, lm_dim>(lm_index, lm_index)
+                    += constraint.Jl.transpose() * constraint.omega * constraint.Jl;
+                H.block<pose_dim, lm_dim>(pose_index, lm_index)
+                    += constraint.Jr.transpose() * constraint.omega * constraint.Jl;
+                b.segment<pose_dim>(pose_index)
+                    += constraint.Jr.transpose() * constraint.omega * constraint.error;
+                b.segment<lm_dim>(lm_index)
+                    += constraint.Jl.transpose() * constraint.omega * constraint.error;
             }
         }
         stats.landmark_chi = landmark_chi;

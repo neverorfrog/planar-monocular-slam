@@ -1,5 +1,5 @@
 import numpy as np
-
+from pms import Pose3, Pose2
 
 def initial_guess_error(
     guessed_positions: np.ndarray, gt_positions: np.ndarray, valid_landmarks: np.ndarray
@@ -37,3 +37,54 @@ def initial_guess_error(
     num_valid = np.sum(valid_landmarks)
     total_landmarks = len(valid_landmarks)
     print(f"\nValid landmarks: {num_valid}/{total_landmarks} ({num_valid/total_landmarks*100:.1f}%)")
+    
+    
+def compute_pose_error(
+    estimated_poses: list[Pose2], gt_poses: list[Pose3]
+) -> float:
+    """
+    Compute the Root Mean Square Error (RMSE) between estimated poses and ground truth poses.
+    
+    Args:
+        estimated_poses (list[Pose2]): List of estimated poses.
+        gt_poses (list[Pose3]): List of ground truth poses.
+    
+    Returns:
+        float: The RMSE value.
+    """
+    if len(estimated_poses) != len(gt_poses):
+        raise ValueError("Estimated poses and ground truth poses must have the same length.")
+    
+    pos_error = 0
+    theta_error = 0
+    
+    for i in range(len(estimated_poses) - 1):
+        est_relative_pose: Pose2 = estimated_poses[i + 1].inverse() * estimated_poses[i]
+        gt_relative_pose: Pose2 = gt_poses[i + 1].getPose2().inverse() * gt_poses[i].getPose2()
+        error_pose: Pose2 = est_relative_pose.inverse() * gt_relative_pose
+
+        pos_error += np.sqrt(np.mean([error_pose.translation[0] ** 2, error_pose.translation[1] ** 2]))
+        theta_error += np.abs(error_pose.rotation())
+
+    return pos_error, theta_error
+
+
+def compute_map_error(
+    estimated_map: np.ndarray, gt_map: np.ndarray, valid_landmarks: np.ndarray
+) -> float:
+    """
+    Compute the Root Mean Square Error (RMSE) between estimated map landmarks and ground truth map landmarks.
+    Args:
+        estimated_map (list[np.ndarray]): List of estimated map landmarks.
+        gt_map (list[np.ndarray]): List of ground truth map landmarks.
+    Returns:
+        float: The RMSE value.
+    """
+    if len(estimated_map) != len(gt_map):
+        raise ValueError("Estimated map and ground truth map must have the same length.")
+    total_error = 0.0
+    for i in range(len(estimated_map)):
+        if valid_landmarks[i]:
+            diff = estimated_map[i] - gt_map[i]
+            total_error += np.sqrt(np.mean(diff ** 2))
+    return total_error

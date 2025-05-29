@@ -6,7 +6,9 @@ def plot_trajectory(traj: list[Pose3], odom_traj: list[Pose3], gt_traj: list[Pos
     """
     Plot the trajectory of the dataset.
     """
-
+    plt.clf()
+    plt.figure()
+    plt.axis("equal")
     plt.plot(
         [odom.translation[0] for odom in odom_traj],
         [odom.translation[1] for odom in odom_traj],
@@ -26,38 +28,41 @@ def plot_trajectory(traj: list[Pose3], odom_traj: list[Pose3], gt_traj: list[Pos
         "bo",
         label="estimated trajectory",
     )
+    plt.legend()
+    plt.title("Trajectory Comparison")
+    
 
-def plot_landmarks(gt: np.ndarray, guess: np.ndarray, successes: np.ndarray, with_error: bool = False) -> None:
+def plot_landmarks(gt: np.ndarray, guess: np.ndarray, successes: np.ndarray = None, with_error: bool = False) -> None:
     """
     Plot the initial guess of the landmarks.
     """
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection="3d")
-    ax.scatter(
+    plt.clf()
+    plt.figure()
+    plt.xlim(-13, 13)
+    plt.ylim(-13, 13)
+    plt.scatter(
         gt[:, 0],
         gt[:, 1],
-        gt[:, 2],
         c="g",
         marker="o",
         label="ground truth",
     )
-    ax.scatter(
+    plt.scatter(
         guess[:, 0],
         guess[:, 1],
-        guess[:, 2],
         c="b",
         marker="o",
-        label="initial guess",
+        label="estimate",
     )
-    ax.set_title("Initial Guess vs Ground Truth")
-    
+    plt.title("Estimated Map vs Ground Truth Map")
+    plt.legend()
+
     if with_error:
         for i in range(len(gt)):
             if successes[i]:
-                ax.plot(
+                plt.plot(
                     [gt[i, 0], guess[i, 0]],  # X coordinates (gt_x, guess_x)
                     [gt[i, 1], guess[i, 1]],  # Y coordinates (gt_y, guess_y)
-                    [gt[i, 2], guess[i, 2]],  # Z coordinates (gt_z, guess_z)
                     color="r",  # Error lines in red
                     linestyle="--",
                     linewidth=0.7,

@@ -20,11 +20,14 @@ PoseLandmarkConstraint::PoseLandmarkConstraint(const Pose2& Xr, const Vector3& X
     chi = error.squaredNorm();
 
     // Robust estimation
+    Scalar weight = 1.0;
     if (chi > max_chi) {
         is_inlier = false;
         error *= std::sqrt(max_chi / chi);
         chi = max_chi;
+        weight = 1.0 / std::sqrt(max_chi);
     }
+    omega = weight * Eigen::Matrix<Scalar, 2, 2>::Identity();
 
     // Jacobian with respect to robot
     Eigen::Matrix<Scalar, 2, 3> J_proj = Eigen::Matrix<Scalar, 2, 3>::Zero();

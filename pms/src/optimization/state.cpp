@@ -44,4 +44,12 @@ void State::applyIncrement(const VectorX& delta) {
     }
 }
 
+std::vector<Vector3> State::getLandmarkPositions() const {
+    std::vector<Vector3> positions;
+    for (const auto& landmark : landmarks) {
+        positions.push_back(landmark.position);
+    }
+    return positions;
+}
+
 }  // namespace pms
