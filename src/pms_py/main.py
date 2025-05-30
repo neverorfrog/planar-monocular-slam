@@ -87,7 +87,7 @@ def main():
                 "converged": bool(stats.converged)
             }
             
-            stats_dir = os.path.join(project_root(), "results", "stats")
+            stats_dir = os.path.join(project_root(), "docs", "stats")
             os.makedirs(stats_dir, exist_ok=True)
             with open(os.path.join(stats_dir, f"stats_{iteration:03d}.json"), "w") as f:
                 json.dump(stats_dict, f, indent=2)

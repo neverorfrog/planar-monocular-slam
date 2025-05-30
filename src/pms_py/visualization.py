@@ -40,7 +40,7 @@ def plot_trajectory(
     plt.legend()
     plt.title("Trajectory Comparison")
     if save:
-        figure_dir = os.path.join(project_root(), "results", "figures")
+        figure_dir = os.path.join(project_root(), "docs", "figures")
         os.makedirs(figure_dir, exist_ok=True)
         plt.savefig(f"{figure_dir}/trajectory_{iteration:03d}.png")
     plt.close()
@@ -93,7 +93,7 @@ def plot_landmarks(
                 )
 
     if save:
-        figure_dir = os.path.join(project_root(), "results", "figures")
+        figure_dir = os.path.join(project_root(), "docs", "figures")
         os.makedirs(figure_dir, exist_ok=True)
         plt.savefig(f"{figure_dir}/landmarks_{iteration:03d}.png")
     plt.close()
@@ -119,7 +119,7 @@ def plot_errors(
     plt.legend()
 
     if save:
-        figure_dir = os.path.join(project_root(), "results", "figures")
+        figure_dir = os.path.join(project_root(), "docs", "figures")
         os.makedirs(figure_dir, exist_ok=True)
         plt.savefig(f"{figure_dir}/errors.png")
     plt.close()

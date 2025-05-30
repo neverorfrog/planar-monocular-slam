@@ -48,14 +48,16 @@ def create_gif_from_images(image_pattern, output_gif, duration=200):
 
 def main():
     # Get the figures directory
-    figure_dir = os.path.join(project_root(), "results", "figures")
+    figure_dir = os.path.join(project_root(), "docs", "figures")
+    output_dir = os.path.join(project_root(), "docs", "animations")
+    os.makedirs(output_dir, exist_ok=True)
 
     # Create GIF for landmarks
     landmarks_pattern = os.path.join(figure_dir, "landmarks_*.png")
-    landmarks_gif = os.path.join(figure_dir, "landmarks_animation.gif")
+    landmarks_gif = os.path.join(output_dir, "landmarks_animation.gif")
     create_gif_from_images(landmarks_pattern, landmarks_gif, duration=300)
 
     # Create GIF for trajectory
     trajectory_pattern = os.path.join(figure_dir, "trajectory_*.png")
-    trajectory_gif = os.path.join(figure_dir, "trajectory_animation.gif")
+    trajectory_gif = os.path.join(output_dir, "trajectory_animation.gif")
     create_gif_from_images(trajectory_pattern, trajectory_gif, duration=300)
