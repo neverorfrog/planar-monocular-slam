@@ -129,7 +129,6 @@ NB_MODULE(pms, m) {
         .def(nb::init<>())
         .def_rw("max_iterations", &BundleAdjustmentConfig::max_iterations)
         .def_rw("tolerance", &BundleAdjustmentConfig::tolerance)
-        .def_rw("pose_landmark", &BundleAdjustmentConfig::pose_landmark)
         .def_rw("pose_pose", &BundleAdjustmentConfig::pose_pose)
         .def_rw("patience", &BundleAdjustmentConfig::patience);
 

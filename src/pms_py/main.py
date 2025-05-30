@@ -6,6 +6,7 @@ from pms import Dataset, BundleAdjuster, BundleAdjustmentConfig, triangulateRans
 from pms_py.evaluation import initial_guess_error
 from pms_py.visualization import (
     plot_errors,
+    plot_inliers,
     plot_landmarks,
     plot_trajectory,
 )
@@ -32,10 +33,10 @@ def main():
     pos_errors = []
     theta_errors = []
     map_errors = []
+    inliers = []
 
     # Bundle Adjustment
     ba_config = BundleAdjustmentConfig()
-    ba_config.pose_landmark = True
     ba_config.pose_pose = False
     ba_config.tolerance = 1e-3
     ba = BundleAdjuster(landmarks, dataset, ba_config)
@@ -53,10 +54,12 @@ def main():
             map_errors.append(stats.map_error)
             pos_errors.append(stats.position_error)
             theta_errors.append(stats.orientation_error)
+            inliers.append(stats.num_inliers)
             pbar.set_postfix(
                 pos_error=f"{stats.position_error:.4f}",
                 theta_error=f"{stats.orientation_error:.4f}",
                 map_error=f"{stats.map_error:.4f}",
+                inliers=stats.num_inliers,
             )
 
             if plotting:
@@ -76,6 +79,7 @@ def main():
 
                 if iteration == ba_config.max_iterations - 1 or stats.converged:
                     plot_errors(pos_errors, theta_errors, map_errors)
+                    plot_inliers(inliers, iteration)
                     
             stats_dict = {
                 "iteration": iteration,
@@ -84,6 +88,7 @@ def main():
                 "map_error": float(stats.map_error),
                 "position_error": float(stats.position_error),
                 "orientation_error": float(stats.orientation_error),
+                "inliers": stats.num_inliers,
                 "converged": bool(stats.converged)
             }
             

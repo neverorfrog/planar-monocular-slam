@@ -41,39 +41,39 @@ const BundleAdjuster::OptimizationStats& BundleAdjuster::performIteration() {
     // 1.3 Put Jacobian into H
 
     // Pose-Landmark Constraints
-    if (config.pose_landmark) {
-        Scalar landmark_chi = 0.0;
-        for (const TrajPoint& traj_point : dataset.trajectory) {
-            for (const Measurement& meas : traj_point.measurements) {
-                const Pose2& pose = state.robot_poses[meas.pose_id];
-                const Landmark& landmark = state.landmarks[meas.landmark_id];
-                const PoseLandmarkConstraint constraint(pose, landmark.position, meas.image_point, camera);
+    int num_inliers = 0;
+    Scalar landmark_chi = 0.0;
+    for (const TrajPoint& traj_point : dataset.trajectory) {
+        for (const Measurement& meas : traj_point.measurements) {
+            const Pose2& pose = state.robot_poses[meas.pose_id];
+            const Landmark& landmark = state.landmarks[meas.landmark_id];
+            const PoseLandmarkConstraint constraint(pose, landmark.position, meas.image_point, camera);
 
-                landmark_chi += constraint.chi;
+            landmark_chi += constraint.chi;
+            num_inliers += constraint.is_inlier ? 1 : 0;
 
-                // Get the indices for the pose and landmark in the state vector
-                constexpr int pose_dim = 3;  // Pose has 3 parameters (x, y, theta)
-                constexpr int lm_dim = 3;    // Landmark has 3 parameters (x, y, z)
-                int pose_index = meas.pose_id * pose_dim;
-                int lm_index = state.getNumPoses() * pose_dim + meas.landmark_id * lm_dim;
+            // Get the indices for the pose and landmark in the state vector
+            constexpr int pose_dim = 3;  // Pose has 3 parameters (x, y, theta)
+            constexpr int lm_dim = 3;    // Landmark has 3 parameters (x, y, z)
+            int pose_index = meas.pose_id * pose_dim;
+            int lm_index = state.getNumPoses() * pose_dim + meas.landmark_id * lm_dim;
 
-                // Fill the Hessian and gradient vector
-                H.block<pose_dim, pose_dim>(pose_index, pose_index)
-                    += constraint.Jr.transpose() * constraint.omega * constraint.Jr;
-                H.block<lm_dim, pose_dim>(lm_index, pose_index)
-                    += constraint.Jl.transpose() * constraint.omega * constraint.Jr;
-                H.block<lm_dim, lm_dim>(lm_index, lm_index)
-                    += constraint.Jl.transpose() * constraint.omega * constraint.Jl;
-                H.block<pose_dim, lm_dim>(pose_index, lm_index)
-                    += constraint.Jr.transpose() * constraint.omega * constraint.Jl;
-                b.segment<pose_dim>(pose_index)
-                    += constraint.Jr.transpose() * constraint.omega * constraint.error;
-                b.segment<lm_dim>(lm_index)
-                    += constraint.Jl.transpose() * constraint.omega * constraint.error;
-            }
+            // Fill the Hessian and gradient vector
+            H.block<pose_dim, pose_dim>(pose_index, pose_index)
+                += constraint.Jr.transpose() * constraint.omega * constraint.Jr;
+            H.block<lm_dim, pose_dim>(lm_index, pose_index)
+                += constraint.Jl.transpose() * constraint.omega * constraint.Jr;
+            H.block<lm_dim, lm_dim>(lm_index, lm_index)
+                += constraint.Jl.transpose() * constraint.omega * constraint.Jl;
+            H.block<pose_dim, lm_dim>(pose_index, lm_index)
+                += constraint.Jr.transpose() * constraint.omega * constraint.Jl;
+            b.segment<pose_dim>(pose_index)
+                += constraint.Jr.transpose() * constraint.omega * constraint.error;
+            b.segment<lm_dim>(lm_index)
+                += constraint.Jl.transpose() * constraint.omega * constraint.error;
         }
-        stats.landmark_chi = landmark_chi;
     }
+    stats.landmark_chi = landmark_chi;
 
     // Pose-Pose Constraints
     if (config.pose_pose) {
@@ -119,6 +119,7 @@ const BundleAdjuster::OptimizationStats& BundleAdjuster::performIteration() {
 
     // 3. Update stats with actual values
     stats.num_iterations++;
+    stats.num_inliers = num_inliers;
     Scalar old_position_error = stats.position_error;
     stats.position_error = 0.0;
     stats.orientation_error = 0.0;

@@ -15,7 +15,6 @@ namespace pms {
 struct BundleAdjustmentConfig {
     int max_iterations = 100;   ///< Maximum number of iterations
     Scalar tolerance = 1e-6;    ///< Convergence tolerance
-    bool pose_landmark = true;  ///< Whether to use pose-landmark constraints
     bool pose_pose = true;      ///< Whether to use pose-pose constraints
     int patience = 5;           ///< Number of iterations to wait before stopping if no improvement
     Scalar min_delta = 1e-3;    ///< Minimum change in error to consider an improvement

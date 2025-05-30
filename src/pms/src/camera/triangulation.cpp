@@ -231,7 +231,7 @@ bool Triangulator::isOutlier(const Vector3& triangulated_point, const Vector2& p
 
     // Check reprojection error with threshold matching the robust approach
     Scalar reprojection_error = computeReprojectionError(triangulated_point, point_2d, camera_T_world);
-    if (reprojection_error > 10.0) {
+    if (reprojection_error > config_.max_reprojection_error) {
         return true;
     }
 

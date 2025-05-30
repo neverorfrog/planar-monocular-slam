@@ -1,9 +1,10 @@
 {
   "iteration": 24,
   "num_iterations": 25,
-  "landmark_chi": 276510.4375,
-  "map_error": 0.12570296227931976,
-  "position_error": 0.11410102248191833,
-  "orientation_error": 0.03163829445838928,
+  "landmark_chi": 271424.1875,
+  "map_error": 0.0819132998585701,
+  "position_error": 0.10342126339673996,
+  "orientation_error": 0.030616041272878647,
+  "inliers": 19272.0,
   "converged": false
 }

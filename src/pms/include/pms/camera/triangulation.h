@@ -18,7 +18,7 @@ struct TriangulationConfig {
     Scalar homogeneous_threshold = 1e-8;  ///< Threshold for homogeneous coordinate validity
     bool enable_cheirality_check = true;  ///< Enable cheirality check (point in front of camera)
     size_t min_observations = 2;          ///< Minimum number of observations required for triangulation
-
+    Scalar max_reprojection_error = 20.0;  ///< Maximum allowed reprojection error for outlier rejection
     TriangulationConfig() = default;
 };
 

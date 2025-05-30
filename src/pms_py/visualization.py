@@ -123,3 +123,20 @@ def plot_errors(
         os.makedirs(figure_dir, exist_ok=True)
         plt.savefig(f"{figure_dir}/errors.png")
     plt.close()
+    
+def plot_inliers(inliers: list[int], save: bool = True) -> None:
+    """
+    Plot the number of inliers over iterations.
+    """
+    plt.clf()
+    plt.figure()
+    plt.plot(inliers, label="Number of Inliers")
+    plt.xlabel("Iteration")
+    plt.ylabel("Inliers")
+    plt.legend()
+
+    if save:
+        figure_dir = os.path.join(project_root(), "docs", "figures")
+        os.makedirs(figure_dir, exist_ok=True)
+        plt.savefig(f"{figure_dir}/inliers.png")
+    plt.close()
