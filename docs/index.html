@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planar Monocular SLAM</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            }
+        };
+    </script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+        h1, h2, h3, h4 { color: #2c3e50; }
+        h1 { border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        h2 { border-bottom: 1px solid #bdc3c7; padding-bottom: 5px; }
+        code { background-color: #f8f9fa; padding: 2px 4px; border-radius: 3px; font-family: 'Monaco', 'Consolas', monospace; }
+        pre { background-color: #f8f9fa; padding: 15px; border-radius: 5px; overflow-x: auto; }
+        ul { list-style-type: disc; margin-left: 20px; }
+        ol { margin-left: 20px; }
+        img { max-width: 100%; height: auto; display: block; margin: 20px auto; }
+        .error-metrics { background-color: #f1f2f6; padding: 15px; border-radius: 5px; margin: 15px 0; }
+        .results { background-color: #dff0d8; padding: 15px; border-radius: 5px; margin: 15px 0; }
+        a { color: #3498db; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <h1>Planar Monocular SLAM</h1>
+    
+    <p>Project of the Probabilistic Robotics Course at Sapienza University of Rome. The goal is to develop a planar monocular slam pipeline, given a dataset made of noisy odometry and measurement made by a monocular camera. The goal is to estimate the position of the perceived landmarks and correct the drift in the odometry, based on these observations.</p>
+
+    <h2>Problem</h2>
+    <p>Differential Drive equipped with a monocular camera.</p>
+
+    <h3>Input</h3>
+    <ul>
+        <li>Integrated dead reckoning (wheeled odometry)</li>
+        <li>Stream of point projections with "id"</li>
+        <li>Camera parameters
+            <ul>
+                <li>Extrinsics (pose of camera on robot)</li>
+                <li>Intrinsics (K)</li>
+            </ul>
+        </li>
+    </ul>
+
+    <h3>Output</h3>
+    <ul>
+        <li>Trajectory (estimate vs gt)</li>
+        <li>3D points (estimate vs gt)</li>
+        <li>Error values (rotation and translation)</li>
+    </ul>
+
+    <p>The solution can be divided in two macro-steps: triangulation and bundle adjustment.</p>
+
+    <h2>Triangulation [1]</h2>
+
+    <p><strong>Given:</strong></p>
+    <ul>
+        <li>A set of $M \ge 2$ 2D image projections $\mathbf{x}_j = [u_j, v_j]^T$ for a single landmark, observed from $M$ different camera views.</li>
+        <li>The camera intrinsic matrix $K$ (3x3).</li>
+        <li>The camera extrinsics relative to the robot: $T_{RC}$ (a 4x4 transformation from camera frame to robot frame).</li>
+        <li>The robot's odometry pose for each view $j$: $T_{WR}^{(j)}$ (a 4x4 transformation from robot frame to world frame).</li>
+    </ul>
+
+    <p>We want to find the 3D position of the landmark in homogeneous world coordinates, $\mathbf{X}_w = [X, Y, Z, 1]^T$.</p>
+
+    <h4>1. Projection Equation</h4>
+    <p>For each view $j$, the projection of the 3D world point $ \mathbf{X}_w $ onto the image plane $\mathbf{x}_{img, j} = [u_j, v_j, 1]^T$ is described by:</p>
+    <p>$$s_j \mathbf{x}_{img, j} = P^{(j)} \mathbf{X}_w$$</p>
+    <p>where:</p>
+    <ul>
+        <li>$s_j$ is a non-zero scale factor for view $j$.</li>
+        <li>$P^{(j)}$ is the $3 \times 4$ camera projection matrix for view $j$.</li>
+    </ul>
+
+    <h4>3. Direct Linear Transform (DLT)</h4>
+    <p>The projection equation implies that $\mathbf{x}_{img, j}$ and $P^{(j)} \mathbf{X}_w$ are collinear. Thus, their cross product is zero [1, Slides 15-21]:</p>
+    <p>$$\mathbf{x}_{img, j} \times (P^{(j)} \mathbf{X}_w) = \mathbf{0}$$</p>
+
+    <p>Substituting $\mathbf{x}_{img, j} = [u_j, v_j, 1]^T$ and $P^{(j)} \mathbf{X}_w = \begin{pmatrix} \mathbf{p}_{j1}^T \mathbf{X}_w \\ \mathbf{p}_{j2}^T \mathbf{X}_w \\ \mathbf{p}_{j3}^T \mathbf{X}_w \end{pmatrix}$, the cross product yields three equations, two of which are linearly independent:</p>
+
+    <ol>
+        <li>$(v_j \mathbf{p}_{j3}^T - \mathbf{p}_{j2}^T) \mathbf{X}_w = 0$</li>
+        <li>$(\mathbf{p}_{j1}^T - u_j \mathbf{p}_{j3}^T) \mathbf{X}_w = 0$</li>
+    </ol>
+
+    <h4>4. Solving the System</h4>
+    <p>For $M$ observations, we stack these $2M$ equations into a single homogeneous linear system:</p>
+    <p>$$A \mathbf{X}_w = \mathbf{0}$$</p>
+    <p>where $A$ is a $(2M \times 4)$ matrix. Since measurements are noisy, this system is solved in a least-squares sense to find $\mathbf{X}_w$ that minimizes $||A \mathbf{X}_w||^2$.</p>
+
+    <h3>Robust Landmark Triangulation</h3>
+    <p>Actually, triangulation over all measurements turned out to give bad results. Instead, what gave better results was using a RANSAC-like approach.</p>
+    
+    <p>For each consecutive frame pair $(i, i+1)$:</p>
+    <ol>
+        <li>Compute camera poses: ${}^CT_{W}^{(i)}$ and ${}^CT_{W}^{(i+1)}$</li>
+        <li>Identify landmarks visible in both frames</li>
+        <li>Extract corresponding 2D measurements: $\mathbf{x}_i = [u_i, v_i]^T$ and $\mathbf{x}_{i+1} = [u_{i+1}, v_{i+1}]^T$</li>
+    </ol>
+
+    <p>Then, For each landmark visible in both consecutive frames, the method applies the Direct Linear Transform (DLT) algorithm using only two views.</p>
+
+    <p>This results in a $(4 \times 4)$ linear system:</p>
+    <p>$$A \mathbf{X}_w = \mathbf{0}$$</p>
+
+    <p>Each triangulated point undergoes strict outlier detection using the <code>isOutlier</code> method:</p>
+
+    <ol>
+        <li><strong>Cheirality Check</strong>: Verify the point is in front of both cameras
+            <ul>
+                <li>Transform point to camera coordinates: $\mathbf{p}_{cam} = T_{CW} \mathbf{X}_w$</li>
+                <li>Check: $Z_{cam} > 0$ and $Z_{cam} \leq z_{far}$</li>
+            </ul>
+        </li>
+        <li><strong>Reprojection Error Check</strong>:
+            <ul>
+                <li>Reproject the 3D point back to 2D: $\mathbf{x}_{reproj} = K [R|t] \mathbf{X}_w$</li>
+                <li>Compute error: $||\mathbf{x}_{reproj} - \mathbf{x}_{measured}||_2$</li>
+                <li>Reject if error $> 10.0$ pixels</li>
+            </ul>
+        </li>
+    </ol>
+
+    <p>For each landmark, the algorithm collects multiple triangulation estimates from different consecutive frame pairs where the landmark was visible. The final 3D position is computed as:</p>
+    <p>$$\mathbf{X}_{final} = \frac{1}{N} \sum_{k=1}^{N} \mathbf{X}_k$$</p>
+    <p>where $N$ is the number of valid triangulation estimates that passed the outlier filtering.</p>
+
+    <h2>Bundle Adjustment</h2>
+    <p>Once the initial guess about the map is given, the optimization process can start.</p>
+
+    <h3>State</h3>
+    <h3>Prediction</h3>
+    <h3>Jacobians</h3>
+    <h3>Robust Kernel</h3>
+
+    <h2>Results</h2>
+
+    <h3>Triangulation</h3>
+    <div class="error-metrics">
+        <p><strong>Errors:</strong></p>
+        <ul>
+            <li>Root Mean Square Error (RMSE): 1.3055</li>
+            <li>Mean Absolute Error (MAE): 0.5197</li>
+            <li>MAE per coordinate: X=0.7529, Y=0.6608, Z=0.1455</li>
+            <li>Mean Euclidean Distance: 1.1177</li>
+            <li>Median Euclidean Distance: 0.9129</li>
+        </ul>
+
+        <p><strong>Component-wise errors:</strong></p>
+        <ul>
+            <li>X-axis: Mean=0.2444, Std=0.9229, Min=-3.1103, Max=2.3314</li>
+            <li>Y-axis: Mean=-0.1817, Std=0.8475, Min=-2.6715, Max=3.4090</li>
+            <li>Z-axis: Mean=0.1386, Std=0.1496, Min=-0.1913, Max=0.7830</li>
+        </ul>
+
+        <p><strong>Valid landmarks:</strong> 783/1000 (78.3%)</p>
+    </div>
+
+    <h3>Bundle Adjustment</h3>
+    <div class="results">
+        <p><strong>After 41 iterations:</strong></p>
+        <ul>
+            <li>Map RMSE $ = 0.1235 $</li>
+            <li>Linear Trajectory Error $ = 0.1140 $</li>
+            <li>Angular Trajectory Error $ = 0.0282 $</li>
+        </ul>
+    </div>
+
+    <img src="results/figures/landmarks_animation.gif" alt="SLAM in action - Landmarks Animation">
+    <img src="results/figures/trajectory_animation.gif" alt="SLAM in action - Trajectory Animation">
+    <img src="results/figures/errors.png" alt="Error Plot">
+
+    <p><strong>Comments:</strong></p>
+    <ul>
+        <li>The ground truth landmarks that are not superposed by an estimate are the ones that are never seen in any measurement.</li>
+        <li>Linear error is not perfect, could probably enhanced by better outlier detection searching for good parameters or an even better initial guess</li>
+    </ul>
+
+    <h3>References</h3>
+    <p>[1] Kris Kitani, "Triangulation," 16-385 Computer Vision, Carnegie Mellon University. [Online]. Available: <a href="https://www.cs.cmu.edu/~16385/s17/Slides/11.4_Triangulation.pdf">https://www.cs.cmu.edu/~16385/s17/Slides/11.4_Triangulation.pdf</a></p>
+</body>
+</html>
