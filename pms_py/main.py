@@ -1,3 +1,4 @@
+import json
 import os
 import numpy as np
 from pms_py.utils import project_root
@@ -75,6 +76,22 @@ def main():
 
                 if iteration == ba_config.max_iterations - 1 or stats.converged:
                     plot_errors(pos_errors, theta_errors, map_errors)
+                    
+            stats_dict = {
+                "iteration": iteration,
+                "num_iterations": stats.num_iterations,
+                "landmark_chi": float(stats.landmark_chi),
+                "map_error": float(stats.map_error),
+                "position_error": float(stats.position_error),
+                "orientation_error": float(stats.orientation_error),
+                "converged": bool(stats.converged)
+            }
+            
+            stats_dir = os.path.join(project_root(), "results", "stats")
+            os.makedirs(stats_dir, exist_ok=True)
+            with open(os.path.join(stats_dir, f"stats_{iteration:03d}.json"), "w") as f:
+                json.dump(stats_dict, f, indent=2)
 
             if stats.converged:
                 break
+            

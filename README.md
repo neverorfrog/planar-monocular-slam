@@ -133,11 +133,11 @@ After 41 iterations:
 - Linear Trajectory Error $ = 0.1140 $
 - Angular Trajectory Error $ = 0.0282 $
 
-![Landmarks Animation](figures/landmarks_animation.gif "SLAM in action")
+![Landmarks Animation](results/figures/landmarks_animation.gif "SLAM in action")
 
-![Trajectory Animation](figures/trajectory_animation.gif "SLAM in action")
+![Trajectory Animation](results/figures/trajectory_animation.gif "SLAM in action")
 
-![Error Plot](figures/errors.png)
+![Error Plot](results/figures/errors.png)
 
 Comments:
 

@@ -3,6 +3,8 @@ import glob
 from PIL import Image
 import re
 
+from pms_py.utils import project_root
+
 
 def create_gif_from_images(image_pattern, output_gif, duration=200):
     """
@@ -44,17 +46,16 @@ def create_gif_from_images(image_pattern, output_gif, duration=200):
         )
         print(f"Created GIF: {output_gif} with {len(images)} frames")
 
-
 def main():
     # Get the figures directory
-    figures_dir = "/home/neverorfrog/code/planar-monocular-slam/figures"
+    figure_dir = os.path.join(project_root(), "results", "figures")
 
     # Create GIF for landmarks
-    landmarks_pattern = os.path.join(figures_dir, "landmarks_*.png")
-    landmarks_gif = os.path.join(figures_dir, "landmarks_animation.gif")
+    landmarks_pattern = os.path.join(figure_dir, "landmarks_*.png")
+    landmarks_gif = os.path.join(figure_dir, "landmarks_animation.gif")
     create_gif_from_images(landmarks_pattern, landmarks_gif, duration=300)
 
     # Create GIF for trajectory
-    trajectory_pattern = os.path.join(figures_dir, "trajectory_*.png")
-    trajectory_gif = os.path.join(figures_dir, "trajectory_animation.gif")
+    trajectory_pattern = os.path.join(figure_dir, "trajectory_*.png")
+    trajectory_gif = os.path.join(figure_dir, "trajectory_animation.gif")
     create_gif_from_images(trajectory_pattern, trajectory_gif, duration=300)
