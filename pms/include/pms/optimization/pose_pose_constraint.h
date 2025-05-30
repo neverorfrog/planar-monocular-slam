@@ -12,9 +12,10 @@ struct PosePoseConstraint {
     Eigen::Matrix<Scalar, 1, 3> Jj;  // Derivative of error with respect to the second pose increment. As tall
                                      // as the error function, as wide as the robot state dimension
     Scalar chi = 0.0;                // Chi-squared value for this constraint, used for robust estimation
-    Scalar max_chi = 1e3;   // Maximum chi-squared value for this constraint, used for robust estimation
+    Scalar max_chi = 1e2;   // Maximum chi-squared value for this constraint, used for robust estimation
     bool is_inlier = true;  // Whether this constraint is considered an inlier based on the chi-squared value
     Scalar h;               // Predicted measurement (euclidean distance between the two poses)
+    Eigen::Matrix<Scalar, 1, 1> omega;
 
     /**
      * @brief Constructor for PosePoseConstraint

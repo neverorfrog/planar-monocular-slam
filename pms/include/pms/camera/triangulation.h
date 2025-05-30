@@ -125,7 +125,7 @@ private:
      * @param T2 Camera pose for second view
      * @return Triangulated 3D point
      */
-    Vector3 triangulateFromTwoViews(const Vector2& p1, const Vector2& p2, 
+    Vector3 triangulateFromTwoViews(const Vector2& p1, const Vector2& p2,
                                    const Pose3& T1, const Pose3& T2) const;
 
     /**
@@ -135,7 +135,7 @@ private:
      * @param camera_T_world Camera pose transformation
      * @return True if the point is an outlier
      */
-    bool isOutlier(const Vector3& triangulated_point, const Vector2& point_2d, 
+    bool isOutlier(const Vector3& triangulated_point, const Vector2& point_2d,
                    const Pose3& camera_T_world) const;
 
     /**
@@ -145,7 +145,7 @@ private:
      * @param camera_T_world Camera pose transformation
      * @return Reprojection error magnitude
      */
-    Scalar computeReprojectionError(const Vector3& point_3d, const Vector2& point_2d, 
+    Scalar computeReprojectionError(const Vector3& point_3d, const Vector2& point_2d,
                                    const Pose3& camera_T_world) const;
 };
 
@@ -179,7 +179,7 @@ std::vector<Landmark> triangulateMatlab(const Dataset& dataset);
  *
  * This function triangulates landmarks from consecutive frame pairs and averages
  * the results, providing better initial estimates through outlier filtering
- * and robust estimation. This approach is more robust than multi-view triangulation 
+ * and robust estimation. This approach is more robust than multi-view triangulation
  * as it uses well-conditioned two-view geometries and filters outliers per estimate.
  *
  * @param dataset The dataset containing trajectory and measurements

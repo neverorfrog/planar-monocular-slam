@@ -3,6 +3,7 @@
 #include <cassert>
 #include <cstddef>
 
+#include "pms/dataset/landmark.h"
 #include "pms/dataset/trajectory_point.h"
 #include "pms/math/pose2.h"
 #include "pms/optimization/manifold.h"
@@ -91,15 +92,17 @@ const BundleAdjuster::OptimizationStats& BundleAdjuster::performIteration() {
 
             // Fill the Hessian and gradient vector
             H.block<pose_dim, pose_dim>(pose_i_index, pose_i_index)
-                += constraint.Ji.transpose() * constraint.Ji;
+                += constraint.Ji.transpose() * constraint.omega * constraint.Ji;
             H.block<pose_dim, pose_dim>(pose_j_index, pose_j_index)
-                += constraint.Jj.transpose() * constraint.Jj;
+                += constraint.Jj.transpose() * constraint.omega * constraint.Jj;
             H.block<pose_dim, pose_dim>(pose_i_index, pose_j_index)
-                += constraint.Ji.transpose() * constraint.Jj;
+                += constraint.Ji.transpose() * constraint.omega * constraint.Jj;
             H.block<pose_dim, pose_dim>(pose_j_index, pose_i_index)
-                += constraint.Jj.transpose() * constraint.Ji;
-            b.segment<pose_dim>(pose_i_index) += constraint.Ji.transpose() * constraint.error;
-            b.segment<pose_dim>(pose_j_index) += constraint.Jj.transpose() * constraint.error;
+                += constraint.Jj.transpose() * constraint.omega * constraint.Ji;
+            b.segment<pose_dim>(pose_i_index)
+                += constraint.Ji.transpose() * constraint.omega * constraint.error;
+            b.segment<pose_dim>(pose_j_index)
+                += constraint.Jj.transpose() * constraint.omega * constraint.error;
         }
         stats.pose_chi = pose_chi;
     }
@@ -116,6 +119,49 @@ const BundleAdjuster::OptimizationStats& BundleAdjuster::performIteration() {
 
     // 3. Update stats with actual values
     stats.num_iterations++;
+    Scalar old_position_error = stats.position_error;
+    stats.position_error = 0.0;
+    stats.orientation_error = 0.0;
+    stats.map_error = 0.0;
+
+    for (size_t i = 0; i < state.getNumPoses() - 1; ++i) {
+        const Pose2& pose_current = state.robot_poses[i];
+        const Pose2& pose_next = state.robot_poses[i + 1];
+        Pose2 estimated_relative_pose = pose_current.inverse() * pose_next;
+        const Pose2& gt_pose_current = dataset.trajectory[i].ground_truth.getPose2();
+        const Pose2& gt_pose_next = dataset.trajectory[i + 1].ground_truth.getPose2();
+        Pose2 gt_relative_pose = gt_pose_current.inverse() * gt_pose_next;
+        Pose2 error_pose = estimated_relative_pose.inverse() * gt_relative_pose;
+
+        stats.position_error += std::sqrt(
+            (std::pow(error_pose.translation.x(), 2) + std::pow(error_pose.translation.y(), 2)) / 2);
+        stats.orientation_error += std::abs(error_pose.rotation);
+    }
+
+    for (size_t i = 0; i < state.getNumLandmarks(); ++i) {
+        const Landmark& estimated_lm = state.landmarks[i];
+        const Landmark& gt_lm = dataset.world[i];
+        if (estimated_lm.valid) {
+            Vector3 diff = estimated_lm.position - gt_lm.position;
+            stats.map_error
+                += std::sqrt((std::pow(diff.x(), 2) + std::pow(diff.y(), 2) + std::pow(diff.z(), 2)) / 3);
+        }
+    }
+    stats.map_error /= state.getNumLandmarks();
+
+    if (stats.position_error < config.tolerance && stats.orientation_error < config.tolerance) {
+        stats.converged = true;
+    } else {
+        stats.converged = false;
+    }
+
+    if (std::abs(stats.position_error - old_position_error) < config.min_delta) {
+        patience_counter++;
+        stats.converged = patience_counter >= config.patience;
+    } else {
+        patience_counter = 0;
+    }
+
     return stats;
 }
 

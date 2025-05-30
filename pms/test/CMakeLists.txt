@@ -1,7 +1,7 @@
 enable_testing()
 
 # Create test executable with explicit source files
-add_executable(pms_tests 
+add_executable(pms_tests
     test_manifolds.cpp
     test_state.cpp
     # test_constraints.cpp
@@ -11,7 +11,7 @@ add_executable(pms_tests
 )
 
 # Link libraries
-target_link_libraries(pms_tests 
+target_link_libraries(pms_tests
     PRIVATE
     ${PMS_CPP_LIB}
     gtest

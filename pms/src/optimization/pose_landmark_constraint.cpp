@@ -24,8 +24,8 @@ PoseLandmarkConstraint::PoseLandmarkConstraint(const Pose2& Xr, const Vector3& X
     if (chi > max_chi) {
         is_inlier = false;
         error *= std::sqrt(max_chi / chi);
+        weight = 0.0;
         chi = max_chi;
-        weight = 1.0 / std::sqrt(max_chi);
     }
     omega = weight * Eigen::Matrix<Scalar, 2, 2>::Identity();
 

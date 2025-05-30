@@ -15,13 +15,16 @@ PosePoseConstraint::PosePoseConstraint(const Pose2& Xi, const Pose2& Xj, const P
     chi = error.squaredNorm();  // Chi-squared value is the squared error
 
     // Robust estimation
+    Scalar weight = 1.0;
     if (chi > max_chi) {
         is_inlier = false;
         error *= std::sqrt(max_chi / chi);
         chi = max_chi;
+        weight = 0.0;
     } else {
         is_inlier = true;
     }
+    omega = weight * Eigen::Matrix<Scalar, 1, 1>::Identity();
 
     Eigen::Matrix<Scalar, 2, 2> R_i = RotationMatrix::aroundZ(Xi.rotation).matrix().block<2, 2>(0, 0);
 

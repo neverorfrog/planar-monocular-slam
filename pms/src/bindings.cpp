@@ -130,13 +130,18 @@ NB_MODULE(pms, m) {
         .def_rw("max_iterations", &BundleAdjustmentConfig::max_iterations)
         .def_rw("tolerance", &BundleAdjustmentConfig::tolerance)
         .def_rw("pose_landmark", &BundleAdjustmentConfig::pose_landmark)
-        .def_rw("pose_pose", &BundleAdjustmentConfig::pose_pose);
+        .def_rw("pose_pose", &BundleAdjustmentConfig::pose_pose)
+        .def_rw("patience", &BundleAdjustmentConfig::patience);
 
     nb::class_<BundleAdjuster::OptimizationStats>(m, "OptimizationStats")
         .def_ro("num_iterations", &BundleAdjuster::OptimizationStats::num_iterations)
         .def_ro("pose_chi", &BundleAdjuster::OptimizationStats::pose_chi)
         .def_ro("landmark_chi", &BundleAdjuster::OptimizationStats::landmark_chi)
         .def_ro("converged", &BundleAdjuster::OptimizationStats::converged)
+        .def_ro("num_inliers", &BundleAdjuster::OptimizationStats::num_inliers)
+        .def_ro("position_error", &BundleAdjuster::OptimizationStats::position_error)
+        .def_ro("orientation_error", &BundleAdjuster::OptimizationStats::orientation_error)
+        .def_ro("map_error", &BundleAdjuster::OptimizationStats::map_error)
         .def("__str__", &BundleAdjuster::OptimizationStats::toString);
 
     nb::class_<BundleAdjuster>(m, "BundleAdjuster")
