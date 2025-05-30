@@ -34,7 +34,7 @@ We want to find the 3D position of the landmark in homogeneous world coordinates
 
 #### 1. Projection Equation
 
-For each view $j$, the projection of the 3D world point $\mathbf{X}_w$ onto the image plane $\mathbf{x}_{img, j} = [u_j, v_j, 1]^T$ is described by:
+For each view $j$, the projection of the 3D world point $ \mathbf{X}_w $ onto the image plane $\mathbf{x}_{img, j} = [u_j, v_j, 1]^T$ is described by:
 
 $s_j \mathbf{x}_{img, j} = P^{(j)} \mathbf{X}_w$
 
@@ -105,6 +105,7 @@ Once the initial guess about the map is given, the optimization process can star
 ### Jacobians
 
 ### Robust Kernel
+
 
 ## Results
 
