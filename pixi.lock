@@ -156,7 +156,7 @@ environments:
       - conda: https://prefix.dev/conda-forge/linux-64/xorg-libxxf86vm-1.1.6-hb9d3cd8_0.conda
       - conda: https://prefix.dev/conda-forge/linux-64/zstd-1.5.7-hb8e6e7a_2.conda
       - conda: .
-      - conda: pms
+      - conda: src/pms
         subdir: linux-64
       osx-64:
       - conda: https://prefix.dev/conda-forge/osx-64/brotli-1.1.0-h00291cd_2.conda
@@ -237,7 +237,7 @@ environments:
       - conda: https://prefix.dev/conda-forge/osx-64/xorg-libxdmcp-1.1.5-h00291cd_0.conda
       - conda: https://prefix.dev/conda-forge/osx-64/zstd-1.5.7-h8210216_2.conda
       - conda: .
-      - conda: pms
+      - conda: src/pms
         subdir: osx-64
       osx-arm64:
       - conda: https://prefix.dev/conda-forge/osx-arm64/brotli-1.1.0-hd74edd7_2.conda
@@ -318,7 +318,7 @@ environments:
       - conda: https://prefix.dev/conda-forge/osx-arm64/xorg-libxdmcp-1.1.5-hd74edd7_0.conda
       - conda: https://prefix.dev/conda-forge/osx-arm64/zstd-1.5.7-h6491c7d_2.conda
       - conda: .
-      - conda: pms
+      - conda: src/pms
         subdir: osx-arm64
       win-64:
       - conda: https://prefix.dev/conda-forge/win-64/_openmp_mutex-4.5-2_gnu.conda
@@ -421,7 +421,7 @@ environments:
       - conda: https://prefix.dev/conda-forge/win-64/xorg-libxdmcp-1.1.5-h0e40799_0.conda
       - conda: https://prefix.dev/conda-forge/win-64/zstd-1.5.7-hbeecb71_2.conda
       - conda: .
-      - conda: pms
+      - conda: src/pms
         subdir: win-64
 packages:
 - conda: https://prefix.dev/conda-forge/linux-64/_libgcc_mutex-0.1-conda_forge.tar.bz2
@@ -3617,7 +3617,7 @@ packages:
   license_family: MIT
   size: 455582
   timestamp: 1733699458861
-- conda: pms
+- conda: src/pms
   name: pms
   version: 0.1.0
   build: hbf21a9e_0
@@ -3625,39 +3625,39 @@ packages:
   depends:
   - libstdcxx >=15
   - libgcc >=15
-  - python_abi 3.12.* *_cp312
   - gtest >=1.17.0,<1.17.1.0a0
+  - python_abi 3.12.* *_cp312
   input:
     hash: 522aca4d8aa55afd3a86b450a68203e7fd49b07cc9a28e3e46e02052b8b9784e
     globs:
     - pixi.toml
-- conda: pms
+- conda: src/pms
   name: pms
   version: 0.1.0
   build: hbf21a9e_0
   subdir: osx-64
   depends:
   - libcxx >=20
-  - python_abi 3.12.* *_cp312
   - gtest >=1.17.0,<1.17.1.0a0
+  - python_abi 3.12.* *_cp312
   input:
     hash: 522aca4d8aa55afd3a86b450a68203e7fd49b07cc9a28e3e46e02052b8b9784e
     globs:
     - pixi.toml
-- conda: pms
+- conda: src/pms
   name: pms
   version: 0.1.0
   build: hbf21a9e_0
   subdir: osx-arm64
   depends:
   - libcxx >=20
-  - gtest >=1.17.0,<1.17.1.0a0
   - python_abi 3.12.* *_cp312
+  - gtest >=1.17.0,<1.17.1.0a0
   input:
     hash: 522aca4d8aa55afd3a86b450a68203e7fd49b07cc9a28e3e46e02052b8b9784e
     globs:
     - pixi.toml
-- conda: pms
+- conda: src/pms
   name: pms
   version: 0.1.0
   build: hbf21a9e_0
@@ -3680,7 +3680,7 @@ packages:
   - rich 13.9.*
   - python
   input:
-    hash: a413d22fe448df4a0f7d389b3df7c4a0a39bb194cd6d21bd6b1b5fa15693947e
+    hash: aa203806bf9b7472726111377d4fda3598156a270c0c479d6bee6fd90d0fc818
     globs:
     - pixi.toml
 - conda: https://prefix.dev/conda-forge/linux-64/pthread-stubs-0.4-hb9d3cd8_1002.conda

@@ -8,7 +8,7 @@ preview = ["pixi-build"]
 
 [dependencies]
 pms_py = { path = "." }
-pms = { path = "pms" }
+pms = { path = "src/pms" }
 matplotlib = ">=3.10.1,<4"
 numpy = ">=2.2.4,<3"
 nanobind = "==2.7.0"
@@ -18,7 +18,7 @@ cmake = ">=3.20"
 make = "*"
 
 [tasks]
-build = 'cd pms && mkdir -p build && cd build && cmake .. && cmake --build . -j$(nproc)'
+build = 'cd src/pms && mkdir -p build && cd build && cmake .. && cmake --build . -j$(nproc)'
 build-tests = 'cd pms && mkdir -p build && cd build && cmake .. -DBUILD_TESTS=ON && cmake --build . -j$(nproc)'
 find-tests = { depends-on = ["build-tests"], cmd = 'cd pms/build/test && ctest --output-on-failure' }
 tests = { depends-on = ["build-tests"], cmd = 'cd pms/build/test && ./pms_tests' }
