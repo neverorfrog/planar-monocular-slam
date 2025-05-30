@@ -154,15 +154,27 @@
     <h3>Linearization</h3>
     <p>This consists in computing the hessian and gradient of the error function, having the measurement (aka an image point, already associated to the landmark), the guessed landmark (from triangulation) and the pose of the camera with respect to the world frame.</p>
     <p>The result of this process are two matrices, $H$ and $b$, which are then used to find a $\delta$ to add to the state, in order to, ideally, go near the ground truth.</p>
-    <p>The two matrices are constructed by iterating over all measurements, and for each do the following.</p>
+    <p>The two matrices are constructed by iterating over all measurements, and for each corresponding pair of pose n and landmark m do the following.</p>
 
     <ol>
         <li>Landmark from homogeneus to camera coordinates: $ {}^c p_m = P \cdot {}^w p_m $ where $ P = K \cdot [{}^c R_w | {}^c t_w] $</li>
         <li>Prediction $h$ obtained by dividing the point in camera coordinates by the last component and extracting the first two components</li>
-        <li>Jacobians with respect to $\Delta x_r$ and $\Delta x_l$ computed as follows
+        <li> 
+            Compute the error $e_{nm} = h - z$, where $z$ is the measurement</li>
+        </li>
+        <li>Jacobians of the error with respect to $\Delta x_r$ and $\Delta x_l$ computed as follows
             <ul>
                 <li>$ J_r = J_{proj} \cdot K \cdot J_{icpr}$</li>
                 <li>$ J_l = J_{proj} \cdot K \cdot J_{icpl}$</li>
+            </ul>
+        </li>
+        <li>
+            Insert $J_r$ and $J_l$ into $J_{nm}$ at the appropriate indices.
+        </li>
+        <li>Update the hessian and gradient base on jacobian $J_{nm}$ and $e_{nm}$:
+            <ul>
+                <li>$H = H + J_{nm}^T \cdot J_{nm}$</li>
+                <li>$b = b + J_{nm}^T \cdot e_{nm}$</li>
             </ul>
         </li>
     </ol>
